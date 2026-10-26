@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Frank’s Laboratory</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:dark;
+  --plum:#2B1A38;
+  --plum-lift:#3B2650;
+  --paper:#D6DFD1;
+  --ink:#1E1426;
+  --amber:#F5A524;
+  --rust:#B8452F;
+  --steel:#8E9AA0;
+  --skin:#8FB573;
+  --good:#BFE0B0;
+  --bad:#F0C2B8;
+  --light:#EFE8F5;
+  --crt:#0C1A18;
+  --crt-ink:#CBEADF;
+  --head:"Pirata One","Palatino Linotype",Georgia,serif;
+  --body:"Special Elite","Courier New",Courier,monospace;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--plum);color:var(--light);font-family:var(--body);font-size:18px;line-height:1.55;min-height:100vh}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 18px 56px}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.bar h1{font-family:var(--head);font-weight:400;font-size:2.5rem;line-height:1.05;margin:0}
+.bar-right{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:inherit;font-size:.9rem;color:var(--light);background:transparent;border:2px solid var(--steel);border-radius:4px;padding:5px 12px;cursor:pointer}
+.chip:hover{background:var(--plum-lift)}
+button:focus-visible,input:focus-visible,.slot:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+.panel button:focus-visible,.panel input:focus-visible{outline-color:var(--rust)}
+
+.panel{background:var(--paper);color:var(--ink);border:3px dashed var(--ink);outline:6px solid var(--paper);outline-offset:-3px;border-radius:8px;padding:24px 26px 26px}
+.panel h2{font-family:var(--head);font-weight:400;font-size:2rem;line-height:1.1;margin:0 0 10px}
+.panel p{margin:0 0 14px;max-width:64ch}
+.btn{font:inherit;font-size:1.05rem;color:var(--ink);background:var(--amber);border:2px solid var(--ink);border-radius:4px;padding:9px 20px;cursor:pointer}
+.btn:hover{background:#FFB93F}
+.btn.ghost{background:transparent}
+.btn.ghost:hover{background:#E6D9B5}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* home */
+.home{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:28px;align-items:start}
+label.name{display:block;margin:16px 0 6px}
+input.name{font:inherit;width:100%;max-width:340px;padding:9px 12px;border:2px solid var(--ink);border-radius:4px;background:#EEF2EB;color:var(--ink)}
+.small{font-size:.9rem;color:#4A3A5A}
+.levels{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.level{display:grid;grid-template-columns:54px 1fr;gap:14px;align-items:start;border:2px dashed var(--steel);border-radius:6px;padding:14px 16px}
+.level.open{border-color:var(--amber);background:var(--plum-lift)}
+.level.locked{opacity:.62}
+.ln{font-family:var(--head);font-size:2.6rem;line-height:1;text-align:center}
+.level h3{font-family:var(--head);font-weight:400;font-size:1.5rem;line-height:1.15;margin:0 0 4px}
+.level p{margin:0 0 10px;font-size:.95rem;color:#D8CDE6}
+.badge{display:inline-block;background:var(--good);color:var(--ink);padding:1px 10px;border-radius:3px;font-size:.85rem;margin-left:8px;vertical-align:middle}
+.soon{font-size:.9rem;color:#BDB0CC}
+
+/* level shell */
+.lvl-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.lvl-head h2{font-family:var(--head);font-weight:400;font-size:1.9rem;margin:0}
+.phase{margin:0;color:#CBBFD8;font-size:.95rem}
+.lab{display:grid;grid-template-columns:250px minmax(0,1fr);gap:22px;align-items:start}
+.scene{position:sticky;top:12px}
+#tablescene{width:100%;height:auto;display:block}
+#tbody{filter:saturate(calc(.2 + .8 * var(--vit,0))) brightness(calc(.8 + .2 * var(--vit,0)));transition:filter .6s}
+.meter{margin-top:8px}
+.meter-label{font-size:.88rem;margin:0 0 6px;color:#CBBFD8}
+.stitches{display:flex;gap:3px}
+.stitch{flex:1;height:18px;border:2px solid var(--steel);border-radius:2px;transform:skewX(-12deg)}
+.stitch.on{background:var(--amber);border-color:var(--amber)}
+
+/* monitor */
+.monitor{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(0,1fr);gap:12px;background:#1B1424;border:3px solid #0E0A14;border-radius:18px;padding:12px;margin-bottom:16px}
+.screen{position:relative;background:var(--crt);border:2px solid #2D4A44;border-radius:10px;padding:10px 10px 12px;color:var(--crt-ink);min-width:0}
+.screen::after{content:"";position:absolute;inset:0;border-radius:8px;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.14) 0 1px,transparent 1px 3px);pointer-events:none}
+.screen-title{font-size:.85rem;margin:0 0 6px;color:#8FC5B6}
+#eye,#view{width:100%;height:auto;display:block}
+#eye text{font-family:var(--body)}
+.sl{fill:rgba(245,165,36,.1);stroke:#F5A524;stroke-dasharray:6 5}
+.sl.nofill{fill:none}
+.slot{cursor:pointer}
+.armed .slot .sl{fill:rgba(245,165,36,.24)}
+.slot:hover .sl{stroke:#FFD479}
+.slot:focus-visible{outline:none}
+.slot:focus-visible .sl{stroke:#fff;stroke-width:4}
+.rays{pointer-events:none}
+.lab-t line{stroke:#9FD3C6;stroke-width:1.5}
+.lab-t circle{fill:#9FD3C6}
+.lab-t text{fill:#E3F4EE;font-size:17px}
+.cl text,.fm{fill:#E3F4EE;font-size:15px;paint-order:stroke;stroke:#0C1A18;stroke-width:4px}
+.chain{list-style:none;margin:10px 0 0;padding:0;font-size:.84rem;line-height:1.45}
+.chain li.ok{color:#9ED9A7}
+.chain li.miss{color:#F0B778}
+.verdict{margin:8px 0 0;font-size:.9rem;min-height:4.2em}
+.readout{margin:0;font-size:.9rem}
+
+/* bench */
+.bench{padding:20px 22px 22px}
+.bench-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.bt{font-family:var(--head);font-weight:400;font-size:1.7rem;margin:0 0 6px}
+.count{font-size:.95rem}
+.help{font-size:.95rem}
+.tray{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:6px 0 12px}
+.part{display:grid;grid-template-columns:76px 1fr;gap:10px;align-items:center;text-align:left;font:inherit;color:var(--ink);background:#EEF2EB;border:2px solid var(--ink);border-radius:4px;padding:8px 10px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.part:hover:not(:disabled){background:#FBE3B4}
+.part.sel{background:#FBE3B4;outline:3px solid var(--rust);outline-offset:1px}
+.part.dragging{opacity:.4}
+.part:disabled{opacity:.55;cursor:default}
+.part .pn{display:block;font-family:var(--head);font-size:1.25rem;line-height:1.1}
+.part .pc{display:block;font-size:.8rem;line-height:1.3}
+.pico{width:76px;height:60px;display:block;border-radius:3px}
+.ghost-drag{position:fixed;left:0;top:0;z-index:60;width:76px;height:60px;pointer-events:none;opacity:.92;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.notice{white-space:pre-line;min-height:3.2em;padding:8px 12px;border-left:5px solid var(--steel);background:#E7EDE3;font-size:.95rem;margin:0 0 12px}
+.notice.good{border-color:#4E9A57;background:var(--good)}
+.notice.bad{border-color:var(--rust);background:var(--bad)}
+.benchbtns{display:flex;gap:10px;flex-wrap:wrap}
+
+/* exam */
+.returning{display:inline-block;background:var(--rust);color:#fff;padding:2px 10px;border-radius:3px;font-size:.9rem;margin-bottom:10px}
+.stepline{font-size:.95rem;margin:0 0 6px!important;color:#4A3A5A}
+.story{border-left:4px solid var(--ink);padding-left:14px}
+.confirmed{background:var(--good);padding:8px 12px;border-radius:4px;font-size:.95rem}
+.q{font-family:var(--head);font-weight:400;font-size:1.5rem;margin:14px 0 6px}
+.opts{display:grid;gap:10px;margin:8px 0 0}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;font:inherit;color:var(--ink);background:#EEF2EB;border:2px solid var(--ink);border-radius:4px;padding:10px 14px;cursor:pointer}
+.opt:hover:not(:disabled){background:#FBE3B4}
+.opt:disabled{cursor:default}
+.opt .k{flex:none;font-family:var(--head);font-size:1.3rem;line-height:1.2;width:1.4em}
+.opt.right{background:var(--good)}
+.opt.wrong{background:var(--bad)}
+.opt.dim{opacity:.55}
+.fb{margin-top:14px}
+.fb .verdict-t{font-family:var(--head);font-size:1.5rem;margin:0 0 4px}
+fieldset.lensctl{border:2px solid var(--ink);border-radius:4px;margin:10px 0;padding:8px 12px 12px}
+fieldset.lensctl legend{padding:0 6px}
+.rads{display:flex;gap:8px;flex-wrap:wrap}
+.rad{position:relative;display:inline-block;border:2px solid var(--ink);border-radius:4px;padding:6px 12px;background:#EEF2EB;cursor:pointer;font-size:.95rem}
+.rad input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.rad.on{background:var(--amber)}
+.rad:focus-within{outline:3px solid var(--rust);outline-offset:2px}
+.strength{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 4px}
+.strength input[type=range]{flex:1 1 200px;max-width:340px;accent-color:var(--rust)}
+.strength output{font-family:var(--head);font-size:1.5rem;min-width:4.2em}
+.submitbox{border-top:2px dashed var(--ink);margin-top:16px;padding-top:6px}
+.restext{display:block;width:100%;font:inherit;font-size:.9rem;line-height:1.45;border:2px solid var(--ink);border-radius:4px;background:#EEF2EB;color:var(--ink);padding:8px 10px;margin:8px 0 12px;resize:vertical}
+a.btn{display:inline-block;text-decoration:none}
+.stats{list-style:none;padding:0;margin:0 0 14px}
+.stats li{padding:4px 0;border-bottom:1px dashed var(--ink)}
+
+
+/* levels 2 and 3 */
+.rs{cursor:pointer}
+.rs .hitr{fill:transparent;stroke:transparent;stroke-width:2}
+.rs:hover .hitr{stroke:#FFD479;stroke-dasharray:5 4}
+.rs.done .hitr{fill:rgba(143,205,180,.16);stroke:#8FCDB4;stroke-dasharray:none}
+.rs:focus-visible{outline:none}
+.rs:focus-visible .hitr{stroke:#fff;stroke-width:3}
+.rs .nb{display:none}
+.rs.done .nb{display:block}
+#ret text,#bars text,#light text{font-family:var(--body);fill:#E3F4EE;font-size:16px}
+#ret .nb circle{fill:#8FCDB4}
+#ret .nb text{fill:#0C1A18;font-size:15px;text-anchor:middle}
+#ret [data-cone].off{fill:none!important;stroke:#7B8B86!important;stroke-width:1.5!important;stroke-dasharray:3 3}
+#ret,#stage,#light,#bars,#dress{width:100%;height:auto;display:block}
+#stage text{font-family:var(--body)}
+.presets,.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.chipb{font:inherit;font-size:.9rem;color:var(--ink);background:#EEF2EB;border:2px solid var(--ink);border-radius:4px;padding:5px 12px;cursor:pointer}
+.chipb:hover{background:#FBE3B4}
+.chipb[aria-pressed=true]{background:var(--amber)}
+.srow{display:grid;grid-template-columns:minmax(150px,1.3fr) minmax(120px,2fr) 3.4em auto;gap:10px;align-items:center;margin:6px 0}
+.srow output{font-family:var(--head);font-size:1.3rem}
+.srow input[type=range]{accent-color:var(--rust);width:100%}
+.checks{list-style:none;padding:0;margin:8px 0 12px}
+.checks li{padding:3px 0;font-size:.95rem}
+.checks li.ok{color:#2D6A36}
+.mini{font-size:.85rem;margin:6px 0 4px;color:#8FC5B6}
+.facts{font-size:.92rem;line-height:1.5;margin:0}
+.cvd{filter:url(#fCvd)}
+.cvdT{filter:url(#fTgt)}
+.plates{display:flex;gap:10px}
+.plates>div{flex:1;min-width:0}
+canvas.plate{width:100%;height:auto;border-radius:50%;display:block;background:#E8E4D6}
+.sw{display:inline-block;width:1.6em;height:1.1em;border:2px solid var(--ink);border-radius:3px;vertical-align:middle;margin-left:6px}
+#wlChart{width:100%;max-width:440px;display:block;margin:10px 0}
+.sws{display:flex;gap:8px}
+.swb{flex:1;height:44px;border:2px solid #9FD3C6;border-radius:4px}
+.ends{display:flex;justify-content:space-between;font-size:.85rem;margin:0 0 10px;max-width:440px}
+@media (max-width:640px){.srow{grid-template-columns:1fr 3.4em auto}.srow label{grid-column:1/-1}}
+
+/* Level 2: Monitor 2 sits under Frank and stays on screen while the page scrolls */
+.lab.m2left{grid-template-columns:380px minmax(0,1fr)}
+.leftcol{display:flex;flex-direction:column;gap:14px;align-self:stretch;min-width:0}
+.leftcol .scene{position:static;display:grid;grid-template-columns:150px 1fr;gap:14px;align-items:center}
+.leftcol .meter{margin-top:0}
+.pin{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow-y:auto}
+.pin .monitor{margin-bottom:0}
+.monitor.single{grid-template-columns:1fr}
+.leftcol canvas.plate{max-width:250px;margin:0 auto}
+.leftcol .plates canvas.plate{max-width:none}
+.leftcol .chipb{font-size:.82rem;padding:4px 9px}
+@media (max-width:900px){
+  .lab.m2left{grid-template-columns:1fr}
+  .pin{position:static;max-height:none}
+}
+/* levels 4 and 5 */
+#ear,#wave,#aud{width:100%;height:auto;display:block}
+#ear text,#wave text,#aud text{font-family:var(--body);fill:#CBEADF}
+#ear .lab-t text{fill:#E3F4EE;font-size:17px}
+#ear text.tobrain{fill:#9FD3C6;font-size:14px}
+.legend{list-style:none;margin:8px 0 0;padding:0;font-size:.8rem;line-height:1.5}
+.lg{display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-right:.5em;vertical-align:-.1em}
+.tipnote{margin:10px 0 0;padding:8px 10px;border-left:4px solid #FFD479;background:rgba(255,212,121,.1);font-size:.9rem;line-height:1.45}
+.dotkey{display:inline-block;width:.8em;height:.8em;border-radius:50%;background:#fff;border:2px solid #F5A524;margin-right:.5em;vertical-align:-.05em}
+.fb .btn{margin:8px 8px 0 0}
+.lvlrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.score{background:var(--good);color:var(--ink);padding:3px 10px;border-radius:3px;font-size:.9rem}
+.sendlink{display:inline-block;margin-top:8px;font-size:.9rem;color:#FFD479}
+.sendlink:hover{color:#fff}
+.vocab{border:2px solid var(--ink);border-radius:4px;background:#EEF2EB;padding:6px 12px;margin:8px 0 12px;font-size:.92rem}
+.vocab summary{cursor:pointer;font-family:var(--head);font-size:1.2rem}
+.vocab dl{margin:6px 0 4px}
+.vocab dt{font-weight:bold;margin-top:8px}
+.vocab dd{margin:0}
+#flashlayer{position:fixed;inset:0;background:#FFF6D6;opacity:0;pointer-events:none;z-index:70}
+@media (prefers-reduced-motion:no-preference){
+  .flash{animation:flash 1.6s ease-out forwards}
+  .slot.hint .sl{animation:pulse .7s ease-in-out 4}
+  .tsp{animation:zap .5s steps(2) infinite}
+}
+@keyframes flash{0%{opacity:0}8%{opacity:1}16%{opacity:.2}26%{opacity:.9}100%{opacity:0}}
+@keyframes pulse{50%{fill:rgba(255,212,121,.7);stroke:#fff}}
+@keyframes zap{50%{opacity:.3}}
+.slot.hint .sl{stroke:#fff;stroke-width:4}
+
+@media (max-width:1000px){ .monitor{grid-template-columns:1fr} }
+@media (max-width:800px){
+  .bar h1{font-size:2rem}
+  .home{grid-template-columns:1fr}
+  .lab{grid-template-columns:1fr;gap:12px}
+  .scene{position:static;display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center}
+  .meter{margin-top:0}
+  .panel{padding:18px 16px 20px}
+  .bench{padding:16px 14px 18px}
+}
+</style>
+</head>
+<body>
+<div id="flashlayer" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="bar">
+    <h1>Frank’s Laboratory</h1>
+    <div class="bar-right">
+      <button class="chip" id="homeBtn" type="button" hidden>Level select</button>
+      <button class="chip" id="muteBtn" type="button" aria-pressed="false">Sound: on</button>
+    </div>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+"use strict";
+const $ = (s,r) => (r||document).querySelector(s);
+const $$ = (s,r) => Array.from((r||document).querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function shuffleDiff(a){let o;do{o=shuffle(a);}while(a.length>1&&o.join()===a.join());return o;}
+const reduceMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const app = $("#app");
+
+/* ============ RESULT SUBMISSION (teacher setup) ============
+   Optional. To collect results in a Google Form:
+   1. Build a form with short-answer questions (name, level, parts misplaced, hints, first-try exams, time, date).
+   2. In the form, open the three-dot menu > "Get pre-filled link", type a sample answer in each question,
+      press "Get link", and copy it.
+   3. Put the form address in formUrl and each question's entry number in FORM_ENTRIES (7 per level, in FORM_FIELDS order).
+   Leave formUrl empty and students get a "Copy my results" button only (good for pasting into a Canvas text-entry assignment). */
+const FORM_FIELDS = ["name","level","partsWrong","hints","firstTry","time","date"];   /* order of the 7 questions per level */
+const FORM_ENTRIES = {
+  1:[1421926064,2038952971,1329271628,172023496,1947720382,733677039,410027278],
+  2:[330549208,187798023,1466355405,1858040270,25085592,857146693,1989259212],
+  3:[955670482,355974602,1618850904,813174662,787632843,1408417365,760645235],
+  4:[1409893103,611360330,171397817,86358980,854257725,656437255,1632913610],
+  5:[225666256,1281819255,643334394,944415312,156022701,1320608544,1156007949]
+};
+const LEVEL_NAMES={1:"Level 1: The eye",2:"Level 2: The retina",3:"Level 3: Opponent processes and the dress",4:"Level 4: The ear",5:"Level 5: Hearing loss"};
+/* Save a finished level. A replay only replaces the saved score if it is at least as good. */
+function recordLevel(n,st){
+  const rec={done:true,date:new Date().toISOString(),firstTry:st.firstTry,total:st.total,wrong:st.wrong,hints:st.hints,secs:st.secs}, prev=save.levels[n];
+  const better=!prev||!prev.done||rec.firstTry>prev.firstTry||(rec.firstTry===prev.firstTry&&rec.wrong<=prev.wrong);
+  save.levels[n]=better?rec:Object.assign({},prev,{done:true});
+  Store.save(save);
+}
+const SUBMIT = {
+  formUrl: "https://docs.google.com/forms/d/e/1FAIpQLScSoCWxJRNIYlHn3CRZ7fMqZ575_kCOteXXBaPfT8Xo7TUgVg/viewform"
+};
+function formLink(d,levelNum){
+  if(!SUBMIT.formUrl || !FORM_ENTRIES[levelNum]) return "";
+  const base=SUBMIT.formUrl.split("?")[0].replace(/\/(viewform|formResponse).*$/,"")+"/viewform";
+  const q=["usp=pp_url"];
+  FORM_FIELDS.forEach((k,i)=>{ if(d[k]!==undefined) q.push("entry."+FORM_ENTRIES[levelNum][i]+"="+encodeURIComponent(d[k])); });
+  return base+"?"+q.join("&");
+}
+async function copyText(t){
+  try{ await navigator.clipboard.writeText(t); return true; }
+  catch(e){
+    const ta=$("#resText"); if(!ta) return false;
+    try{ ta.removeAttribute("readonly"); ta.focus(); ta.select(); const ok=document.execCommand("copy"); ta.setAttribute("readonly",""); return !!ok; }
+    catch(_){ ta.setAttribute("readonly",""); return false; }
+  }
+}
+
+/* ============ storage (browser only; private to each device) ============ */
+const Store = {
+  key:"frankLab.v1", mem:null,
+  blank(){return {name:"",muted:false,levels:{}};},
+  load(){
+    try{const r=localStorage.getItem(this.key); if(r){const o=JSON.parse(r); if(o&&typeof o==="object") return Object.assign(this.blank(),o);}}catch(e){}
+    return this.mem||this.blank();
+  },
+  save(d){this.mem=d; try{localStorage.setItem(this.key,JSON.stringify(d));}catch(e){}}
+};
+let save = Store.load();
+if(!save.levels) save.levels = {};
+
+/* ============ sound (synthesized, quiet by default) ============ */
+const Snd = {
+  ctx:null, muted:!!save.muted,
+  ensure(){
+    if(this.muted) return null;
+    if(!this.ctx){try{this.ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}}
+    if(this.ctx.state==="suspended") this.ctx.resume();
+    return this.ctx;
+  },
+  tone(freq,dur,type,vol,when,slideTo){
+    const c=this.ensure(); if(!c) return;
+    const t=c.currentTime+(when||0), o=c.createOscillator(), g=c.createGain();
+    o.type=type||"sine"; o.frequency.setValueAtTime(freq,t);
+    if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo,t+dur);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||.06,t+.01); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+dur+.03);
+  },
+  noise(dur,vol,lp,when){
+    const c=this.ensure(); if(!c) return;
+    const t=c.currentTime+(when||0), n=Math.floor(c.sampleRate*dur), buf=c.createBuffer(1,n,c.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
+    const s=c.createBufferSource(); s.buffer=buf;
+    const f=c.createBiquadFilter(); f.type="lowpass"; f.frequency.value=lp||800;
+    const g=c.createGain(); g.gain.value=vol||.08;
+    s.connect(f); f.connect(g); g.connect(c.destination); s.start(t);
+  },
+  place(){this.tone(520,.12,"triangle",.06); this.tone(780,.16,"triangle",.05,.08);},
+  wrong(){this.tone(150,.2,"sawtooth",.04,0,100);},
+  zap(){this.noise(.25,.06,3000); this.tone(900,.25,"square",.025,0,200);},
+  thunder(){this.noise(1.8,.12,350); this.tone(70,1.2,"sine",.08,.05,35);}
+};
+function paintMute(){
+  const b=$("#muteBtn"); b.textContent="Sound: "+(Snd.muted?"off":"on"); b.setAttribute("aria-pressed",String(Snd.muted));
+}
+$("#muteBtn").addEventListener("click",()=>{Snd.muted=!Snd.muted; save.muted=Snd.muted; Store.save(save); paintMute(); if(!Snd.muted) Snd.place();});
+paintMute();
+
+/* ============ eye geometry ============
+   Light enters from the left. The back of the eyeball stretches or shrinks with the
+   patient's refractive error, so a nearsighted eye is drawn longer and a farsighted eye shorter. */
+const K = 26;                    /* pixels of focus shift per diopter */
+function geom(retX){
+  const b=170, k=Math.sqrt(1-Math.pow(98/b,2));
+  const a=(retX+10-285)/(1+k), cx=retX+10-a;
+  return {a:a,b:b,cx:cx,cy:210,retX:retX};
+}
+const G0 = geom(585);
+const f1 = n => n.toFixed(1);
+function eyeOutline(g){
+  return `<path d="M285 112 A${f1(g.a)} ${g.b} 0 1 1 285 308" fill="#17302F" stroke="#DDE1D6" stroke-width="12" stroke-linejoin="round"/>`;
+}
+function retinaPath(g){
+  const ar=g.a-9, br=158, t=62*Math.PI/180, x1=g.cx+ar*Math.cos(t), y1=g.cy-br*Math.sin(t), y2=g.cy+br*Math.sin(t);
+  return `M${f1(x1)} ${f1(y1)} A${f1(ar)} ${br} 0 0 1 ${f1(x1)} ${f1(y2)}`;
+}
+function foveaPt(g){return [g.cx+g.a-9,210];}
+function nerveCurve(g){
+  const t=24*Math.PI/180, p0=[g.cx+g.a*Math.cos(t),210+170*Math.sin(t)];
+  const c1=[p0[0]+50,p0[1]+8], c2=[p0[0]+120,p0[1]+30], p3=[Math.max(828,p0[0]+130),p0[1]+58];
+  return {p0:p0,c1:c1,c2:c2,p3:p3,d:`M${f1(p0[0])} ${f1(p0[1])} C${f1(c1[0])} ${f1(c1[1])} ${f1(c2[0])} ${f1(c2[1])} ${f1(p3[0])} ${f1(p3[1])}`};
+}
+function bez(c,t){
+  const u=1-t, w=[u*u*u,3*u*u*t,3*u*t*t,t*t*t], P=[c.p0,c.c1,c.c2,c.p3];
+  return [0,1].map(i=>P.reduce((s,p,j)=>s+w[j]*p[i],0));
+}
+function retinaXAt(g,y){
+  const ar=g.a-9, br=158, t=(y-210)/br;
+  return Math.abs(t)>=1 ? g.cx+ar*.5 : g.cx+ar*Math.sqrt(1-t*t);
+}
+
+/* ============ the seven eye parts ============ */
+const PARTS = [
+ {id:"cornea", name:"Cornea", bbox:[216,98,82,224],
+  clue:"The clear dome at the very front. It bends light more than any other part.",
+  fact:"Cornea in place. It bends incoming light more than any other part of the eye.",
+  draw:(g,p)=>`<path d="M285 106 Q171 210 285 314 Q195 210 285 106 Z" ${p?'fill="#8ED3E2" stroke="#CFF1F7" stroke-width="2"':'class="sl" stroke-width="2"'}/>`,
+  hit:g=>`<path d="M285 106 Q171 210 285 314" fill="none" stroke="transparent" stroke-width="44"/>`,
+  anchors:g=>[[242,210]],
+  label:g=>({t:"Cornea",x:28,y:70,x1:96,y1:78,x2:234,y2:178})},
+ {id:"iris", name:"Iris and pupil", bbox:[290,104,32,212],
+  clue:"A ring of colored muscle with an opening in the middle. It controls how much light gets in.",
+  fact:"Iris in place. Its muscles change the size of the pupil, the opening in the middle, to control how much light gets in.",
+  draw:(g,p)=>[110,260].map(y=>`<rect x="299" y="${y}" width="14" height="50" rx="6" ${p?'fill="#C98B2B" stroke="#7A4E10" stroke-width="2"':'class="sl" stroke-width="2"'}/>`).join(""),
+  hit:g=>`<rect x="286" y="104" width="40" height="62" fill="transparent"/><rect x="286" y="254" width="40" height="62" fill="transparent"/>`,
+  anchors:g=>[[306,135],[306,285]],
+  label:g=>({t:"Iris and pupil",x:236,y:30,x1:290,y1:38,x2:306,y2:112})},
+ {id:"lens", name:"Lens", bbox:[322,152,52,116],
+  clue:"A clear, flexible disc behind the pupil. It fine-tunes the focus.",
+  fact:"Lens in place. It fine-tunes the focus so the image lands sharply on the retina.",
+  draw:(g,p)=>`<ellipse cx="348" cy="210" rx="20" ry="52" ${p?'fill="rgba(255,244,170,.55)" stroke="#F5E9A8" stroke-width="3"':'class="sl" stroke-width="2"'}/>`,
+  hit:g=>`<ellipse cx="348" cy="210" rx="32" ry="62" fill="transparent"/>`,
+  anchors:g=>[[348,210]],
+  label:g=>({t:"Lens",x:130,y:345,x1:168,y1:338,x2:332,y2:252})},
+ {id:"ciliary", name:"Ciliary muscle", bbox:[322,108,62,200],
+  clue:"Small muscles that hold the lens and change its shape for near or far.",
+  fact:"Ciliary muscles in place. They make the lens rounder for close objects and flatter for far ones (accommodation).",
+  draw:(g,p)=>p
+    ? `<ellipse cx="352" cy="124" rx="26" ry="13" fill="#B76E79" stroke="#E7B6BC" stroke-width="2"/><ellipse cx="352" cy="296" rx="26" ry="13" fill="#B76E79" stroke="#E7B6BC" stroke-width="2"/><path d="M346 136 L342 161 M358 136 L356 163 M346 284 L342 259 M358 284 L356 257" stroke="#E7B6BC" stroke-width="2" fill="none"/>`
+    : `<ellipse cx="352" cy="124" rx="26" ry="13" class="sl" stroke-width="2"/><ellipse cx="352" cy="296" rx="26" ry="13" class="sl" stroke-width="2"/>`,
+  hit:g=>`<ellipse cx="352" cy="124" rx="38" ry="24" fill="transparent"/><ellipse cx="352" cy="296" rx="38" ry="24" fill="transparent"/>`,
+  anchors:g=>[[352,124],[352,296]],
+  label:g=>({t:"Ciliary muscle",x:190,y:398,x1:300,y1:392,x2:344,y2:308})},
+ {id:"retina", name:"Retina", bbox:[488,62,104,298],
+  clue:"The lining at the back, covered in rods and cones. It turns light into neural signals.",
+  fact:"Retina in place. Rods and cones here convert light into neural signals (transduction).",
+  draw:(g,p)=>{const d=retinaPath(g); return p
+    ? `<path d="${d}" fill="none" stroke="#D9786A" stroke-width="14" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#F6C1B6" stroke-width="14" stroke-dasharray="1.5 5"/>`
+    : `<path d="${d}" fill="none" stroke="rgba(245,165,36,.2)" stroke-width="16" stroke-linecap="round"/><path d="${d}" class="sl nofill" stroke-width="2" stroke-linecap="round"/>`;},
+  hit:g=>`<path d="${retinaPath(g)}" fill="none" stroke="transparent" stroke-width="44"/>`,
+  anchors:g=>{const ar=g.a-9,br=158;return [-50,-25,50].map(d=>{const t=d*Math.PI/180;return [g.cx+ar*Math.cos(t),g.cy+br*Math.sin(t)];});},
+  label:g=>({t:"Retina",x:610,y:48,x1:640,y1:54,x2:548,y2:108})},
+ {id:"fovea", name:"Fovea", bbox:[566,186,40,48],
+  clue:"A tiny pit at the center of the retina, packed with cones. It gives the sharpest detail.",
+  fact:"Fovea in place. Packed with cones, it gives Frank sharp detail right where he is looking.",
+  draw:(g,p)=>{const c=foveaPt(g); return p
+    ? `<circle cx="${f1(c[0])}" cy="${c[1]}" r="8" fill="#F2C14E" stroke="#8A5A00" stroke-width="2"/>`
+    : `<circle cx="${f1(c[0])}" cy="${c[1]}" r="13" class="sl" stroke-width="2"/>`;},
+  hit:g=>{const c=foveaPt(g); return `<circle cx="${f1(c[0])}" cy="${c[1]}" r="24" fill="transparent"/>`;},
+  anchors:g=>[foveaPt(g)],
+  label:g=>({t:"Fovea",x:652,y:156,x1:648,y1:164,x2:593,y2:204})},
+ {id:"nerve", name:"Optic nerve", bbox:[568,262,266,104],
+  clue:"A cable that leaves the back of the eye and carries the signal to the brain.",
+  fact:"Optic nerve in place. It carries the signal to the brain. Where it leaves the eye there are no receptors, which creates the blind spot.",
+  draw:(g,p)=>{const d=nerveCurve(g).d; return p
+    ? `<path d="${d}" fill="none" stroke="#4E3B1A" stroke-width="32" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#E8C98A" stroke-width="24" stroke-linecap="round"/>`
+    : `<path d="${d}" fill="none" stroke="rgba(245,165,36,.2)" stroke-width="28" stroke-linecap="round"/><path d="${d}" class="sl nofill" stroke-width="2" stroke-linecap="round"/>`;},
+  hit:g=>`<path d="${nerveCurve(g).d}" fill="none" stroke="transparent" stroke-width="48"/>`,
+  anchors:g=>{const c=nerveCurve(g);return [.25,.45,.65,.88].map(t=>bez(c,t));},
+  label:g=>{const a=bez(nerveCurve(g),.5);return {t:"Optic nerve",x:a[0]-44,y:a[1]-56,x1:a[0],y1:a[1]-46,x2:a[0],y2:a[1]-14};}}
+];
+const PART = Object.fromEntries(PARTS.map(p=>[p.id,p]));
+const CHAIN_TXT = {cornea:"Cornea: bends light",iris:"Iris: controls brightness",lens:"Lens: focuses",ciliary:"Ciliary muscle: adjusts focus",retina:"Retina: detects light",fovea:"Fovea: sharp detail",nerve:"Optic nerve: sends the signal"};
+
+function labelSVG(l){
+  return `<g class="lab-t"><line x1="${l.x1}" y1="${l.y1}" x2="${l.x2}" y2="${l.y2}"/><circle cx="${l.x2}" cy="${l.y2}" r="3"/><text x="${l.x}" y="${l.y}">${l.t}</text></g>`;
+}
+function iconSVG(p){
+  const b=p.bbox;
+  return `<svg class="pico" viewBox="${b.join(" ")}" aria-hidden="true"><rect x="${b[0]}" y="${b[1]}" width="${b[2]}" height="${b[3]}" fill="#17302F"/>${p.draw(G0,true)}</svg>`;
+}
+
+/* corrective lens drawn in front of the eye */
+function clSVG(type,str){
+  if(type==="none"||str<=0) return "";
+  const x=110, y1=135, y2=285; let d;
+  if(type==="convex"){const t=str*1.2; d=`M${x} ${y1} Q${x+2*t} 210 ${x} ${y2} Q${x-2*t} 210 ${x} ${y1} Z`;}
+  else {const t=str*.8; d=`M${x-6} ${y1} L${x+6} ${y1} Q${x+6-2*t} 210 ${x+6} ${y2} L${x-6} ${y2} Q${x-6+2*t} 210 ${x-6} ${y1} Z`;}
+  return `<g class="cl"><path d="${d}" fill="rgba(160,215,230,.35)" stroke="#BDEBF5" stroke-width="2.5"/><text x="${x}" y="122" text-anchor="middle">Corrective lens</text></g>`;
+}
+
+/* light rays: simple paraxial model */
+function buildRays(g,cfg){
+  const cy=210, offs=[-66,-44,-22,0,22,44,66], out=[];
+  for(const o of offs){
+    let h=o; const pts=[[0,cy+h]];
+    if(cfg.showCL){pts.push([110,cy+h]); h=h*(1-145*.0006*cfg.P);}
+    pts.push([255,cy+h]);
+    const qc=cfg.cornea?.8:1, yl=cy+h*qc, yAt=x=>cy+h+(yl-(cy+h))*(x-255)/90;
+    if(cfg.iris){const yi=yAt(306); if(Math.abs(yi-cy)>50){pts.push([306,yi]); out.push({pts:pts,blocked:true}); continue;}}
+    pts.push([345,yl]);
+    let yR;
+    if(cfg.lens && cfg.focusX){const s=(cy-yl)/(cfg.focusX-345); yR=x=>yl+s*(x-345);}
+    else {const s=(yl-(cy+h))/90; yR=x=>yl+s*(x-345);}
+    const yEnd=yR(g.retX); pts.push([retinaXAt(g,yEnd),yEnd]);
+    out.push({pts:pts,blocked:false});
+  }
+  return out;
+}
+
+/* ============ Frank's view (what the patient sees) ============ */
+const VIEW_SVG = `
+<svg id="view" viewBox="0 0 320 220" role="img" aria-label="The scene as Frank sees it">
+ <defs>
+  <filter id="fFar" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur id="gbFar" stdDeviation="0"/></filter>
+  <filter id="fNear" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur id="gbNear" stdDeviation="0"/></filter>
+  <filter id="fSm" x="-40%" y="-60%" width="180%" height="220%"><feGaussianBlur stdDeviation="5"/></filter>
+  <filter id="fNoise"><feTurbulence id="turb" type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="3"/><feColorMatrix type="saturate" values="0"/></filter>
+ </defs>
+ <g id="far" filter="url(#fFar)">
+  <rect width="320" height="156" fill="#33474A"/>
+  <path d="M30 156 V62 Q30 20 70 20 Q110 20 110 62 V156 Z" fill="#41567E"/>
+  <polygon points="62,24 50,70 64,70 52,122 90,60 72,60 84,24" fill="#FFE27A"/>
+  <path d="M30 84 H110 M70 20 V156" stroke="#1E1426" stroke-width="4" fill="none"/>
+  <rect x="186" y="54" width="116" height="6" fill="#5B4636"/>
+  <rect x="194" y="30" width="20" height="24" rx="4" fill="#6FBF73"/>
+  <rect x="224" y="24" width="18" height="30" rx="4" fill="#9B6FD1"/>
+  <circle cx="272" cy="42" r="12" fill="#E5A84A"/>
+  <rect x="186" y="104" width="116" height="6" fill="#5B4636"/>
+  <rect x="198" y="80" width="14" height="24" rx="3" fill="#D1566B"/>
+  <rect x="228" y="86" width="22" height="18" rx="3" fill="#5FB5C9"/>
+  <text class="vt" x="258" y="132" font-size="11" fill="#CFE8E1">Lab 7</text>
+ </g>
+ <g id="near" filter="url(#fNear)">
+  <rect y="150" width="320" height="70" fill="#4A3A2E"/>
+  <circle cx="50" cy="94" r="24" fill="#F5A524" opacity=".22"/>
+  <rect x="40" y="104" width="20" height="52" fill="#EDE6D6"/>
+  <ellipse cx="50" cy="94" rx="6" ry="11" fill="#F5A524"/>
+  <rect x="150" y="136" width="70" height="56" fill="#E9E4D2"/>
+  <rect x="222" y="136" width="70" height="56" fill="#DAD4BF"/>
+  <path d="M221 136 V192" stroke="#8A7F66" stroke-width="2"/>
+  <text class="vt" x="158" y="154" font-size="12" fill="#1E1426">ANATOMY</text>
+  <text class="vt" x="158" y="167" font-size="8" fill="#1E1426">Vol. 4: The Eye</text>
+  <path d="M158 175 H212 M158 181 H206 M230 146 H284 M230 153 H280 M230 160 H284 M230 167 H274 M230 174 H284 M230 181 H270" stroke="#6B6350" stroke-width="2"/>
+ </g>
+ <ellipse id="smudge" cx="186" cy="152" rx="40" ry="24" fill="#6C7A7A" filter="url(#fSm)" opacity="0"/>
+ <rect id="glare" width="320" height="220" fill="#fff" opacity="0"/>
+ <rect id="dark" width="320" height="220" fill="#000" opacity="0"/>
+ <rect id="noiseRect" width="320" height="220" fill="#888" filter="url(#fNoise)" opacity="0"/>
+ <text id="vmsg" class="vt" x="160" y="116" text-anchor="middle" font-size="20" fill="#E3F4EE" opacity="0"></text>
+</svg>`;
+let staticTimer=null;
+function stopStatic(){ if(staticTimer){clearInterval(staticTimer);staticTimer=null;} }
+function applyView(fx){
+  const set=(id,a,v)=>{const e=$("#"+id); if(e) e.setAttribute(a,String(v));};
+  set("gbFar","stdDeviation",fx.far||0); set("gbNear","stdDeviation",fx.near||0);
+  set("glare","opacity",fx.glare||0); set("smudge","opacity",(fx.smudge||0)*.9);
+  set("dark","opacity",fx.mode==="dark"?1:(fx.mode==="static"?.35:0));
+  set("noiseRect","opacity",fx.mode==="static"?.85:0);
+  const m=$("#vmsg"); if(m){ m.textContent=fx.mode==="dark"?"No light detected":(fx.mode==="static"?"NO SIGNAL":""); m.setAttribute("opacity",fx.mode==="ok"?0:1); }
+  if(fx.mode==="static" && !staticTimer && !reduceMotion()){
+    staticTimer=setInterval(()=>{const t=$("#turb"); if(t) t.setAttribute("seed",String(Math.floor(Math.random()*200)));},110);
+  } else if(fx.mode!=="static"){ stopStatic(); }
+}
+
+/* ============ eye exams (phase 2) ============ */
+const EXAMS = [
+ {id:"m25", R:-2.5, story:"Frank can read the labels on the jars in his hand, but the lab door across the room is a blur."},
+ {id:"h20", R:2.0, story:"Frank sees the lab door just fine, but the words in the anatomy book blur together and his eye aches after reading."},
+ {id:"n00", R:0, story:"Frank reads the anatomy book and spots the lab door without any trouble."},
+ {id:"m45", R:-4.5, story:"Frank keeps walking into the table. Anything farther than his own arm is a smear of color."},
+ {id:"h35", R:3.5, story:"Frank squints and holds the book at arm’s length, but even then the words swim."}
+];
+const EXAM_BY = Object.fromEntries(EXAMS.map(e=>[e.id,e]));
+const TOL = .25;
+const condName = R => R<-TOL ? "Nearsightedness (myopia)" : (R>TOL ? "Farsightedness (hyperopia)" : "Normal vision");
+const DX_WHY = {
+  myo:"The eye focuses too strongly for its length, so light from far objects comes into focus in front of the retina. Far things blur while near things stay fairly clear.",
+  hyp:"The eye focuses too weakly for its length, so the focus would land behind the retina. Near things blur first.",
+  nor:"Light from far objects comes into focus right on the retina, so nothing needs correcting."
+};
+const FIX_WHY = {
+  myo:"A concave lens spreads light slightly before it enters the eye. That pushes the focus backward onto the retina, and a stronger myopia needs a stronger lens.",
+  hyp:"A convex lens bends light inward before it enters the eye. That pulls the focus forward onto the retina.",
+  nor:"This eye needed no lens. Adding one would have moved the focus off the retina and made Frank’s vision worse."
+};
+const kind = R => R<-TOL?"myo":(R>TOL?"hyp":"nor");
+
+/* ============ Level 1 state ============ */
+let L1 = null;
+function newL1(){
+  return {phase:"assemble", placed:new Set(), sel:null, wrong:0, hints:0, notice:"", noticeKind:"", start:Date.now(),
+    queue:[], cur:null, step:"dx", missed:{}, firstTry:0, done:new Set(), lens:{type:"none",str:0},
+    curMissed:false, curQueued:false, returning:false, locked:false, answers:0, opts:[], retry:false,
+    trayOrder:shuffleDiff(PARTS.map(p=>p.id))};
+}
+const curP = () => !L1.lens || L1.lens.type==="none" ? 0 : (L1.lens.type==="concave" ? -L1.lens.str : L1.lens.str);
+
+/* ============ home / level select ============ */
+function scoreHTML(r){
+  const t=r.total||0, f=r.firstTry||0, pct=t?Math.round(100*f/t):0;
+  return `<span class="score" title="Questions and patients answered correctly on the first try, in your best run">Score: ${f} of ${t} on the first try (${pct}%)</span>`;
+}
+function showHome(){
+  stopStatic(); clearL3Timer(); L1=null; L2=null; L3=null; L4=null; L5=null; Hearing.stop();
+  $("#homeBtn").hidden=true;
+  const lv1=save.levels[1];
+  const LV=[
+   {n:1,title:"The eye: build it, then fit glasses",blurb:"Assemble Frank’s eye from its parts, then correct nearsightedness and farsightedness with lenses."},
+   {n:2,title:"The retina: rods, cones, and color vision",blurb:"Switch cone types on and off and see how color blindness changes Frank’s view."},
+   {n:3,title:"Opponent processes and the dress",blurb:"Explore afterimages and opponent cells, then settle the dress debate."},
+   {n:4,title:"The ear: build it",blurb:"Assemble Frank’s ear and follow a sound wave all the way to the brain."},
+   {n:5,title:"Hearing loss: conduction and sensorineural",blurb:"Diagnose Frank’s hearing loss, then try different ways to fix it."}
+  ];
+  app.innerHTML=`<div class="home">
+   <section class="panel">
+    <h2>Bring Frank to life</h2>
+    <p>Frank’s senses are failing and the storm is on its way. Rebuild each sense, one level at a time, and diagnose what goes wrong when it breaks.</p>
+    <p class="small">Sound is part of this lab. Headphones help, and every sound also has a matching caption or picture. The sound button at the top turns it off.</p>
+    <label class="name" for="nm">Your name</label>
+    <input class="name" id="nm" type="text" maxlength="40" autocomplete="off">
+    ${SUBMIT.formUrl?`<div class="submitbox" style="margin-top:18px"><h4 class="q">Record your scores</h4>
+     <p class="small">Open the Google Form whenever you are ready to turn in scores. Every finished level also has a “Send this score to the form” link that fills in your results for you, so you never need to replay a level to reach the form.</p>
+     <a class="btn" id="formTop" target="_blank" rel="noopener" href="${SUBMIT.formUrl.split("?")[0]}">Open the Google Form</a></div>`:""}
+    <p class="small" style="margin-top:14px">Progress is saved in this browser on this device only.</p>
+   </section>
+   <ol class="levels">${LV.map(l=>{
+     const open=l.n<=5, done=!!(save.levels[l.n]&&save.levels[l.n].done);
+     return `<li class="level ${open?"open":"locked"}"><span class="ln">${l.n}</span><div><h3>${l.title}${done?'<span class="badge">Complete</span>':""}</h3><p>${l.blurb}</p>${
+       open?`<div class="lvlrow"><button class="btn" type="button" id="go${l.n}">${done?"Replay level "+l.n:"Start level "+l.n}</button>${done?scoreHTML(save.levels[l.n]):""}</div>${done&&SUBMIT.formUrl?`<a class="sendlink" id="send${l.n}" target="_blank" rel="noopener" href="#">Send this score to the form</a>`:""}`:`<span class="soon">Coming soon</span>`}</div></li>`;
+   }).join("")}</ol></div>`;
+  const nm=$("#nm"); nm.value=save.name||"";
+  const paintLinks=()=>{ [1,2,3,4,5].forEach(n=>{const a=$("#send"+n), d=savedResults(n); if(a&&d) a.href=formLink(d,n);}); };
+  paintLinks();
+  nm.addEventListener("input",()=>{save.name=nm.value.trim(); Store.save(save); paintLinks();});
+  const starters={1:startLevel1,2:startLevel2,3:startLevel3,4:startLevel4,5:startLevel5};
+  [1,2,3,4,5].forEach(n=>{const b=$("#go"+n); if(b) b.addEventListener("click",()=>{Snd.place(); starters[n]();});});
+}
+$("#homeBtn").addEventListener("click",showHome);
+
+/* ============ Level 1 screen ============ */
+const TABLE_SVG = `
+<svg id="tablescene" viewBox="0 0 300 340" role="img" aria-label="Frank strapped to a tilted lab table, his left eye highlighted">
+ <rect x="48" y="8" width="204" height="316" rx="10" fill="#8E9AA0" stroke="#1E1426" stroke-width="3"/>
+ <rect x="120" y="324" width="60" height="10" fill="#6B747A"/><rect x="84" y="334" width="132" height="6" fill="#6B747A"/>
+ <g id="tbody" transform="translate(30,10)">
+  <rect x="52" y="180" width="136" height="112" rx="10" fill="#33263F"/>
+  <rect x="22" y="182" width="34" height="98" rx="12" fill="#33263F"/><rect x="184" y="182" width="34" height="98" rx="12" fill="#33263F"/>
+  <circle cx="39" cy="286" r="14" fill="#8FB573"/><circle cx="201" cy="286" r="14" fill="#8FB573"/>
+  <rect x="104" y="148" width="32" height="38" fill="#7DA364"/>
+  <rect x="54" y="98" width="10" height="26" rx="4" fill="#7DA364"/><rect x="176" y="98" width="10" height="26" rx="4" fill="#7DA364"/>
+  <rect x="62" y="36" width="116" height="118" rx="8" fill="#8FB573"/>
+  <polygon points="62,36 178,36 178,66 160,52 144,68 128,52 112,68 96,52 80,68 62,58" fill="#1E1426"/>
+  <rect x="62" y="72" width="116" height="8" fill="#6F9558"/>
+  <ellipse cx="92" cy="92" rx="15" ry="11" fill="#F2F0E4"/><ellipse cx="148" cy="92" rx="15" ry="11" fill="#F2F0E4"/>
+  <circle cx="94" cy="93" r="5" fill="#1E1426"/><circle cx="146" cy="93" r="5" fill="#1E1426"/>
+  <path d="M76 84 q16 -8 32 0 M132 84 q16 -8 32 0" stroke="#1E1426" stroke-width="3" fill="none"/>
+  <path d="M120 98 v18 h-9" stroke="#1E1426" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M90 136 h60" stroke="#1E1426" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M100 131 v10 M112 131 v10 M124 131 v10 M136 131 v10 M148 131 v10" stroke="#1E1426" stroke-width="2.5"/>
+  <g fill="#8E9AA0" stroke="#1E1426" stroke-width="2"><rect x="84" y="160" width="14" height="12" rx="2"/><rect x="142" y="160" width="14" height="12" rx="2"/></g>
+ </g>
+ <rect x="48" y="212" width="204" height="12" fill="#5B4636"/><rect x="48" y="262" width="204" height="12" fill="#5B4636"/>
+ <polygon points="196,102 300,12 300,196 196,112" fill="rgba(245,165,36,.1)" stroke="#F5A524" stroke-width="1.5" stroke-dasharray="5 4"/>
+ <ellipse cx="178" cy="102" rx="22" ry="17" fill="rgba(245,165,36,.2)" stroke="#F5A524" stroke-width="3"/>
+ <rect x="12" y="70" width="6" height="250" fill="#6B747A"/><circle cx="15" cy="62" r="13" fill="#6FBF73" stroke="#1E1426" stroke-width="2"/>
+ <g class="tsp" fill="#F5A524" stroke="#1E1426" stroke-width="1.2"><polygon points="262,262 252,278 259,278 252,294 270,272 263,272 270,262"/></g>
+</svg>`;
+
+function startLevel1(){
+  L1=newL1();
+  $("#homeBtn").hidden=false;
+  app.innerHTML=`<div class="lvl">
+   <div class="lvl-head"><h2>Level 1: The eye</h2><p class="phase" id="phase"></p></div>
+   <div class="lab">
+    <aside class="scene" aria-label="Frank on the lab table">
+     ${TABLE_SVG}
+     <div class="meter"><p class="meter-label" id="meterlabel" aria-live="polite"></p><div class="stitches" id="stitches" aria-hidden="true"></div></div>
+    </aside>
+    <section>
+     <div class="monitor">
+      <div class="screen">
+       <p class="screen-title">Monitor 1: Frank’s left eye, side view</p>
+       <svg id="eye" viewBox="0 0 840 420" role="group" aria-label="Cross-section of Frank’s left eye. Light enters from the left."></svg>
+      </div>
+      <div class="screen">
+       <p class="screen-title">Monitor 2: What Frank sees</p>
+       ${VIEW_SVG}
+       <ul class="chain" id="chain"></ul>
+       <p class="verdict" id="verdict" aria-live="polite"></p>
+      </div>
+     </div>
+     <div class="panel bench" id="bench"></div>
+    </section>
+   </div></div>`;
+  const stit=$("#stitches"); for(let i=0;i<PARTS.length+EXAMS.length;i++){const d=document.createElement("div"); d.className="stitch"; stit.appendChild(d);}
+  wireEye();
+  refresh();
+  window.scrollTo({top:0,behavior:"auto"});
+}
+
+/* ---------- drawing ---------- */
+function drawEyeSVG(){
+  const exam=L1.phase!=="assemble";
+  const R=exam&&L1.cur?L1.cur.R:0;
+  const g=geom(585-K*R);
+  let s=eyeOutline(g), labels="";
+  for(const id of ["retina","nerve","fovea","ciliary","iris","lens","cornea"]){
+    const p=PART[id];
+    if(exam||L1.placed.has(id)){
+      s+=`<g class="pl">${p.draw(g,true)}</g>`;
+      if(!exam) labels+=labelSVG(p.label(g));
+    } else {
+      s+=`<g class="slot" data-slot="${id}" tabindex="0" role="button" aria-label="Empty place in the eye. Select it to put the chosen part here.">${p.hit(g)}${p.draw(g,false)}</g>`;
+    }
+  }
+  let rays, P=0, showCL=false, focusX;
+  if(exam){
+    P=curP(); showCL=L1.lens.type!=="none"&&L1.lens.str>0; focusX=585-K*P;
+    rays=buildRays(g,{cornea:true,lens:true,iris:true,focusX:focusX,P:P,showCL:showCL});
+  } else {
+    const c=L1.placed.has("cornea"), l=L1.placed.has("lens");
+    focusX=c&&l?585:(c?705:(l?900:null));
+    rays=buildRays(g,{cornea:c,lens:l,iris:L1.placed.has("iris"),focusX:focusX,P:0,showCL:false});
+  }
+  s+=`<g class="rays">${rays.map(r=>`<polyline points="${r.pts.map(p=>f1(p[0])+","+f1(p[1])).join(" ")}" fill="none" stroke="#FFD479" stroke-width="2" opacity="${r.blocked?.4:.95}"/>`).join("")}</g>`;
+  const hits=rays.filter(r=>!r.blocked).map(r=>r.pts[r.pts.length-1]);
+  if(hits.length&&(L1.placed.has("retina")||exam)){
+    const ys=hits.map(p=>p[1]), y0=Math.min.apply(null,ys), y1=Math.max.apply(null,ys), xm=retinaXAt(g,(y0+y1)/2);
+    s+=`<line class="rays" x1="${f1(xm)}" y1="${f1(y0)}" x2="${f1(xm)}" y2="${f1(Math.max(y1,y0+3))}" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".9"/>`;
+  }
+  s+=labels;
+  if(exam){
+    s+=clSVG(L1.lens.type,L1.lens.str);
+    if(L1.phase==="exam"&&L1.step==="fix"){
+      s+=`<g class="rays"><circle cx="${f1(focusX)}" cy="210" r="6" fill="none" stroke="#fff" stroke-width="2"/><text class="fm" x="${f1(focusX)}" y="190" text-anchor="middle">Rays cross</text></g>`;
+    }
+  }
+  return s;
+}
+function assembleFx(pl){
+  if(!pl.has("retina")) return {mode:"dark"};
+  if(!pl.has("nerve")) return {mode:"static"};
+  const base=(pl.has("cornea")?0:7)+(pl.has("lens")?0:3.2);
+  return {mode:"ok",far:base,near:base+(pl.has("ciliary")?0:3.8),glare:pl.has("iris")?0:.72,smudge:pl.has("fovea")?0:1};
+}
+function assembleVerdict(pl){
+  if(!pl.has("retina")) return "Frank sees nothing. Without a retina, no light is detected.";
+  if(!pl.has("nerve")) return "No signal. The retina detects light, but nothing carries the message to the brain.";
+  const b=[];
+  if(!pl.has("cornea")) b.push("very blurry (the cornea does most of the bending)");
+  if(!pl.has("lens")) b.push("out of focus (no lens to fine-tune it)");
+  if(!pl.has("iris")) b.push("washed out (no iris to limit the light)");
+  if(!pl.has("ciliary")) b.push("close-up objects blur (the lens can’t change shape)");
+  if(!pl.has("fovea")) b.push("a smudge at the center (no area of sharp detail)");
+  return b.length ? "Frank’s view: "+b.join("; ")+"." : "Frank sees clearly!";
+}
+function updateView(){
+  let fx, text;
+  if(L1.phase==="assemble"){ fx=assembleFx(L1.placed); text=assembleVerdict(L1.placed); }
+  else {
+    const R=L1.cur?L1.cur.R:0, res=R-curP(), m=Math.abs(res)<=TOL?0:Math.min(11,Math.abs(res)*3), myo=res<0;
+    fx={mode:"ok",far:m*(myo?1:.4),near:m*(myo?.4:1),glare:0,smudge:0};
+    text = L1.phase==="done" ? "Frank sees clearly!" : (m===0 ? "Sharp. Near and far objects are both in focus." : "Blurry. Compare the book (near) with the window (far).");
+  }
+  applyView(fx);
+  $("#verdict").textContent=text;
+}
+function updateChain(){
+  const ul=$("#chain"); ul.hidden = L1.phase!=="assemble";
+  if(L1.phase!=="assemble"){ul.innerHTML=""; return;}
+  ul.innerHTML=PARTS.map(p=>{const ok=L1.placed.has(p.id); return `<li class="${ok?"ok":"miss"}">${ok?"✓":"✗"} ${CHAIN_TXT[p.id]}${ok?"":" (missing)"}</li>`;}).join("");
+}
+function updateMeter(){
+  const total=PARTS.length+EXAMS.length;
+  const n=(L1.phase==="assemble"?L1.placed.size:PARTS.length)+L1.done.size;
+  $$("#stitches .stitch").forEach((s,i)=>s.classList.toggle("on",i<n));
+  $("#meterlabel").textContent=`Eye repair: ${n} of ${total} steps done`;
+  $("#tbody").style.setProperty("--vit",String(n/total));
+}
+function updatePhase(){
+  $("#phase").textContent = L1.phase==="assemble" ? "Phase 1 of 2: Assemble the eye" : (L1.phase==="exam" ? "Phase 2 of 2: Fit Frank for glasses" : "Level complete");
+}
+function refresh(){
+  $("#eye").classList.toggle("armed",!!L1.sel);
+  $("#eye").innerHTML=drawEyeSVG();
+  updateView(); updateChain(); updateMeter(); updatePhase(); renderBench();
+}
+function redrawEyeOnly(){ $("#eye").innerHTML=drawEyeSVG(); updateView(); }
+
+/* ---------- assembly interaction ---------- */
+function say(msg,kind){
+  L1.notice=msg; L1.noticeKind=kind||"";
+  const n=$("#notice"); if(n){n.textContent=msg; n.className="notice "+(kind||"");}
+}
+function partBtn(p){
+  const placed=L1.placed.has(p.id);
+  return `<button type="button" class="part${L1.sel===p.id?" sel":""}" data-part="${p.id}"${placed?" disabled":""} aria-pressed="${L1.sel===p.id}">${iconSVG(p)}<span><span class="pn">${p.name}${placed?" ✓":""}</span><span class="pc">${p.clue}</span></span></button>`;
+}
+function renderBench(){
+  const host=$("#bench");
+  if(L1.phase==="assemble"){
+    const n=L1.placed.size;
+    host.innerHTML=`<div class="bench-head"><h3 class="bt">Parts tray</h3><span class="count">${n} of ${PARTS.length} placed</span></div>
+     <p class="help">Drag each part onto its place on Monitor 1. You can also select a part and then select its place.</p>
+     <div class="tray" id="tray">${L1.trayOrder.map(id=>partBtn(PART[id])).join("")}</div>
+     <p id="notice" class="notice ${L1.noticeKind}" aria-live="polite">${esc(L1.notice)}</p>
+     <div class="benchbtns"><button type="button" class="btn ghost" id="hintBtn"${n===PARTS.length?" hidden":""}>Hint</button>${n===PARTS.length?'<button type="button" class="btn" id="toExam">Fit Frank for glasses</button>':""}</div>`;
+    $("#hintBtn").addEventListener("click",hint);
+    const te=$("#toExam"); if(te) te.addEventListener("click",startExams);
+  } else if(L1.phase==="exam"){ renderExam(); }
+  else { renderDone(); }
+}
+function selectPart(id){
+  if(L1.phase!=="assemble"||L1.placed.has(id)) return;
+  L1.sel = L1.sel===id ? null : id;
+  $$(".part").forEach(b=>{const on=b.dataset.part===L1.sel; b.classList.toggle("sel",on); b.setAttribute("aria-pressed",String(on));});
+  $("#eye").classList.toggle("armed",!!L1.sel);
+  say(L1.sel?`Selected: ${PART[id].name}. Now choose its place on Monitor 1.`:"", "");
+}
+function placeAttempt(partId,slotId){
+  if(!partId){ say("Select a part from the tray first.",""); return; }
+  if(partId===slotId){
+    L1.placed.add(partId); L1.sel=null; Snd.place();
+    say(PART[partId].fact,"good");
+    if(L1.placed.size===PARTS.length){ Snd.zap(); L1.notice+=" Every part is in place, and Frank’s eye works!"; }
+    refresh();
+  } else {
+    L1.wrong++; Snd.wrong();
+    const b=$(`.part[data-part="${partId}"]`); if(b){b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake");}
+    say(`Not quite. The ${PART[partId].name.toLowerCase()} doesn’t go there. Think about what it does: ${PART[partId].clue}`,"bad");
+  }
+}
+function hint(){
+  if(!L1.sel){ say("Select a part first, then ask for a hint.",""); return; }
+  L1.hints++;
+  const s=$(`.slot[data-slot="${L1.sel}"]`);
+  if(s){ s.classList.add("hint"); setTimeout(()=>s.classList.remove("hint"),3200); }
+  say("Hint used. Look for the glowing place on Monitor 1.","");
+}
+function wireEye(){
+  const eye=$("#eye");
+  eye.addEventListener("click",e=>{const s=e.target.closest(".slot"); if(s&&L1.phase==="assemble") placeAttempt(L1.sel,s.dataset.slot);});
+  eye.addEventListener("keydown",e=>{
+    if(e.key!=="Enter"&&e.key!==" ") return;
+    const s=e.target.closest&&e.target.closest(".slot"); if(s&&L1.phase==="assemble"){e.preventDefault(); placeAttempt(L1.sel,s.dataset.slot);}
+  });
+}
+/* drag and drop with pointer events (mouse, touch, pen) */
+let drag=null;
+function makeGhost(id,lv){const d=document.createElement("div"); d.className="ghost-drag"; d.innerHTML=lv===4?earIcon(EAR_PART[id]):iconSVG(PART[id]); return d;}
+app.addEventListener("pointerdown",e=>{
+  const b=e.target.closest&&e.target.closest(".part");
+  const lv=(L1&&L1.phase==="assemble")?1:((L4&&L4.phase==="assemble")?4:0);
+  if(!b||b.disabled||!lv) return;
+  drag={lv:lv,id:b.dataset.part,btn:b,sx:e.clientX,sy:e.clientY,moved:false,ghost:null,pid:e.pointerId};
+  try{b.setPointerCapture(e.pointerId);}catch(_){}
+});
+window.addEventListener("pointermove",e=>{
+  if(!drag||e.pointerId!==drag.pid) return;
+  if(!drag.moved&&Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>7){
+    drag.moved=true; drag.ghost=makeGhost(drag.id,drag.lv); document.body.appendChild(drag.ghost); drag.btn.classList.add("dragging");
+  }
+  if(drag.moved) drag.ghost.style.transform=`translate(${e.clientX-38}px,${e.clientY-30}px)`;
+});
+function endDrag(e,cancel){
+  if(!drag||e.pointerId!==drag.pid) return;
+  const d=drag; drag=null;
+  d.btn.classList.remove("dragging"); if(d.ghost) d.ghost.remove();
+  if(cancel) return;
+  if(!d.moved){ if(d.lv===4) selectEar(d.id); else selectPart(d.id); return; }
+  if(d.lv===4) dropEar(d.id,e.clientX,e.clientY); else dropPart(d.id,e.clientX,e.clientY);
+}
+window.addEventListener("pointerup",e=>endDrag(e,false));
+window.addEventListener("pointercancel",e=>endDrag(e,true));
+app.addEventListener("click",e=>{
+  const b=e.target.closest&&e.target.closest(".part");
+  if(b&&e.detail===0){ if(L1&&L1.phase==="assemble") selectPart(b.dataset.part); else if(L4&&L4.phase==="assemble") selectEar(b.dataset.part); }   /* keyboard activation */
+});
+function dropPart(id,cx,cy){
+  const svg=$("#eye"); if(!svg||!svg.createSVGPoint) return;
+  const r=svg.getBoundingClientRect();
+  if(cx<r.left-10||cx>r.right+10||cy<r.top-10||cy>r.bottom+10) return;
+  const m=svg.getScreenCTM(); if(!m) return;
+  const pt=svg.createSVGPoint(); pt.x=cx; pt.y=cy; const p=pt.matrixTransform(m.inverse());
+  let best=null, bd=1e9;
+  for(const part of PARTS){
+    if(L1.placed.has(part.id)) continue;
+    for(const a of part.anchors(G0)){const d=Math.hypot(p.x-a[0],p.y-a[1]); if(d<bd){bd=d;best=part.id;}}
+  }
+  if(best&&bd<=72) placeAttempt(id,best);
+  else say("Drop the part right onto one of the dashed places on Monitor 1.","");
+}
+
+/* ---------- phase 2: eye exams with mastery loop ---------- */
+function startExams(){
+  L1.phase="exam"; L1.queue=shuffle(EXAMS.map(e=>e.id)); L1.done=new Set(); L1.missed={}; L1.firstTry=0; L1.answers=0;
+  Snd.place(); nextExam();
+}
+function nextExam(){
+  if(!L1.queue.length){ finishL1(); return; }
+  L1.cur=EXAM_BY[L1.queue.shift()]; L1.step="dx"; L1.curMissed=false; L1.curQueued=false; L1.retry=false;
+  L1.returning=!!L1.missed[L1.cur.id]; L1.lens={type:"none",str:0}; L1.locked=false;
+  refresh(); window.scrollTo({top:0,behavior:"auto"});
+}
+function markMiss(){
+  if(L1.curMissed) return;
+  L1.curMissed=true; L1.missed[L1.cur.id]=(L1.missed[L1.cur.id]||0)+1;
+  if(!L1.curQueued){ L1.curQueued=true; L1.queue.splice(Math.min(2,L1.queue.length),0,L1.cur.id); }
+}
+function renderExam(){
+  const c=L1.cur, host=$("#bench");
+  let h=`<h3 class="bt">Eye exam</h3>${L1.returning?'<span class="returning">Returning patient: you missed this exam earlier</span>':""}
+   <p class="stepline">${L1.step==="dx"?"Step 1 of 2: Diagnose":"Step 2 of 2: Fit a lens"}</p>
+   <p class="story">${esc(c.story)}</p>`;
+  if(L1.step==="dx"){
+    h+=`<h4 class="q">What is Frank’s condition? Study the eye on Monitor 1.</h4><div class="opts" id="opts"></div><div class="fb" id="fb" aria-live="polite"></div>`;
+    host.innerHTML=h;
+    L1.opts=shuffle(["Nearsightedness (myopia)","Farsightedness (hyperopia)","Normal vision"]);
+    const correct=condName(c.R), list=$("#opts");
+    L1.opts.forEach((t,i)=>{
+      const b=document.createElement("button"); b.type="button"; b.className="opt";
+      b.innerHTML=`<span class="k">${i+1}</span><span>${t}</span>`;
+      b.addEventListener("click",()=>answerDx(i,t===correct));
+      list.appendChild(b);
+    });
+    L1.locked=false;
+  } else {
+    h+=`<p class="confirmed">Diagnosis confirmed: ${condName(c.R)}</p>
+     <fieldset class="lensctl"><legend>Corrective lens type</legend><div class="rads">
+      <label class="rad"><input type="radio" name="lt" value="none"> No lens</label>
+      <label class="rad"><input type="radio" name="lt" value="concave"> Concave (thinner in the middle)</label>
+      <label class="rad"><input type="radio" name="lt" value="convex"> Convex (thicker in the middle)</label>
+     </div></fieldset>
+     <div class="strength"><label for="str">Lens strength</label><input id="str" type="range" min="0" max="6" step="0.5" value="0"><output id="strOut" for="str"></output></div>
+     <p class="readout" id="readout" aria-live="polite"></p>
+     <div class="benchbtns" style="margin-top:12px"><button type="button" class="btn" id="rx">Prescribe this lens</button></div>
+     <div class="fb" id="fb" aria-live="polite"></div>`;
+    host.innerHTML=h;
+    $$("input[name=lt]").forEach(r=>{
+      r.checked=r.value===L1.lens.type; r.closest(".rad").classList.toggle("on",r.checked);
+      r.addEventListener("change",()=>{L1.lens.type=r.value; if(r.value==="none") L1.lens.str=0; lensChanged();});
+    });
+    $("#str").addEventListener("input",e=>{L1.lens.str=parseFloat(e.target.value); if(L1.lens.str>0&&L1.lens.type==="none"){L1.lens.type=(L1.cur.R<0?"concave":"convex");} lensChanged();});
+    $("#rx").addEventListener("click",prescribe);
+    lensChanged();
+  }
+}
+function lensChanged(){
+  if($("#str")){
+    $("#str").value=String(L1.lens.str); $("#str").disabled=L1.lens.type==="none"||L1.locked;
+    const P=curP(), sign=P<0?"−":(P>0?"+":"");
+    $("#strOut").textContent=`${sign}${Math.abs(P).toFixed(1)} D`;
+    $$("input[name=lt]").forEach(r=>{r.checked=r.value===L1.lens.type; r.disabled=L1.locked; r.closest(".rad").classList.toggle("on",r.checked);});
+    const res=L1.cur.R-P, where=Math.abs(res)<=TOL?"on the retina":(res<0?"in front of the retina":"behind the retina");
+    $("#readout").textContent=`Light from far objects now focuses ${where}.`;
+  }
+  redrawEyeOnly();
+}
+function answerDx(i,ok){
+  if(L1.locked) return; L1.locked=true; L1.answers++;
+  const c=L1.cur, correct=condName(c.R);
+  $$("#opts .opt").forEach((b,j)=>{
+    b.disabled=true; const isRight=L1.opts[j]===correct;
+    if(isRight){b.classList.add("right"); b.firstChild.textContent="✓";}
+    else if(j===i){b.classList.add("wrong"); b.firstChild.textContent="✗";}
+    else b.classList.add("dim");
+  });
+  const fb=$("#fb");
+  if(ok){ Snd.place(); if(L1.retry&&L1.curMissed){ L1.queue=L1.queue.filter(x=>x!==c.id); L1.curMissed=false; L1.curQueued=false; } L1.retry=false; }
+  else {Snd.wrong(); markMiss();}
+  fb.innerHTML=`<p class="verdict-t">${ok?"Diagnosis confirmed.":"Misdiagnosis."}</p><p>${DX_WHY[kind(c.R)]}</p>${ok?"":"<p>Try this question again right now, or move on and this exam will come back later.</p>"}`;
+  const nb=document.createElement("button"); nb.type="button"; nb.className="btn"; nb.textContent="Continue to lens fitting";
+  nb.addEventListener("click",()=>{L1.step="fix"; L1.locked=false; refresh();});
+  if(!ok){
+    const rb=document.createElement("button"); rb.type="button"; rb.className="btn"; rb.textContent="Try this question again now";
+    rb.addEventListener("click",()=>{L1.retry=true; L1.locked=false; renderExam();});
+    nb.className="btn ghost"; nb.textContent="Move on to lens fitting"; fb.appendChild(rb); fb.appendChild(nb); rb.focus();
+  } else { fb.appendChild(nb); nb.focus(); }
+}
+function prescribe(){
+  if(L1.locked) return;
+  const c=L1.cur, P=curP(), res=c.R-P, ok=Math.abs(res)<=TOL, fb=$("#fb"); L1.answers++;
+  if(ok){
+    L1.locked=true; Snd.zap();
+    if(!L1.curMissed){ L1.done.add(c.id); if(!L1.missed[c.id]) L1.firstTry++; }
+    fb.innerHTML=`<p class="verdict-t">Prescription successful.</p><p>${FIX_WHY[kind(c.R)]}</p>${L1.curMissed?"<p>Because you missed part of this exam, it will return once more for a clean run.</p>":""}`;
+    const last=!L1.queue.length;
+    const nb=document.createElement("button"); nb.type="button"; nb.className="btn"; nb.textContent=last?"Finish level":"Next patient";
+    nb.addEventListener("click",nextExam); fb.appendChild(nb);
+    lensChanged(); updateMeter(); nb.focus();
+  } else {
+    Snd.wrong(); markMiss();
+    let msg;
+    if(c.R===0) msg="This eye already focuses on the retina. Any lens would move the focus away, so the best prescription is no lens.";
+    else if(res<0) msg = P>0 ? "A convex lens pulls the focus even further forward. This eye needs the opposite kind of lens."
+                       : (P===0 ? "With no lens, the focus is still in front of the retina." : "The focus is still in front of the retina. This concave lens is too weak.");
+    else msg = P<0 ? "That concave lens is too strong. It pushes the focus past the retina." : "The focus is still behind the retina. A convex lens would pull it forward.";
+    fb.innerHTML=`<p class="verdict-t">Not a match.</p><p>${msg} Adjust the lens and try again. This exam will return later for a clean run.</p>`;
+  }
+}
+function resultsData(){
+  const mm=Math.floor(L1.secs/60), ss=String(L1.secs%60).padStart(2,"0"), levelName="Level 1: The eye";
+  const d={name:save.name||"", level:"1", partsWrong:String(L1.wrong), hints:String(L1.hints),
+    firstTry:String(L1.firstTry), time:mm+":"+ss, date:new Date().toLocaleDateString(), levelNum:1};
+  d.summary="Frank’s Laboratory, "+levelName+". Student: "+(d.name||"(no name)")+". Parts placed incorrectly: "+d.partsWrong+
+    ". Hints used: "+d.hints+". Eye exams passed on the first try: "+d.firstTry+" of "+EXAMS.length+". Time: "+d.time+". Date: "+d.date+".";
+  return d;
+}
+function wireSubmit(){
+  const nm=$("#subName"), ta=$("#resText"), link=$("#subLink"), msg=$("#copyMsg");
+  const paint=()=>{ const d=resultsData(); ta.value=d.summary; if(link) link.href=formLink(d,d.levelNum); };
+  nm.value=save.name||""; paint();
+  nm.addEventListener("input",()=>{save.name=nm.value.trim(); Store.save(save); paint();});
+  $("#copyRes").addEventListener("click",async()=>{
+    msg.textContent=(await copyText(ta.value))?"Copied. Paste it where your teacher asked.":"Select the text above and copy it.";
+  });
+}
+function finishL1(){
+  L1.phase="done"; L1.cur=null; L1.lens={type:"none",str:0};
+  const secs=Math.round((Date.now()-L1.start)/1000);
+  L1.secs=secs;
+  recordLevel(1,{firstTry:L1.firstTry,total:EXAMS.length,wrong:L1.wrong,hints:L1.hints,secs:secs});
+  const fl=$("#flashlayer"); fl.classList.remove("flash"); void fl.offsetWidth; fl.classList.add("flash");
+  Snd.thunder();
+  refresh();
+}
+function renderDone(){
+  const mm=Math.floor(L1.secs/60), ss=String(L1.secs%60).padStart(2,"0");
+  const retried=Object.keys(L1.missed);
+  const host=$("#bench");
+  host.innerHTML=`<h3 class="bt">Frank can see!</h3>
+   <p>${save.name?esc(save.name)+", you":"You"} built Frank’s eye and fitted lenses for every patient.</p>
+   <ul class="stats">
+    <li>Eye parts placed incorrectly: ${L1.wrong}</li>
+    <li>Hints used: ${L1.hints}</li>
+    <li>Eye exams passed on the first try: ${L1.firstTry} of ${EXAMS.length}</li>
+    <li>Time: ${mm}:${ss}</li>
+    <li>Date: ${esc(new Date().toLocaleDateString())}</li>
+   </ul>
+   <p>${retried.length?"Exams that came back: "+retried.map(id=>condName(EXAM_BY[id].R)+" ("+(EXAM_BY[id].R>0?"+":"")+EXAM_BY[id].R.toFixed(1)+" D)").join(", ")+".":"No exams came back. Clean sweep."}</p>
+   <div class="submitbox">
+    <h4 class="q">Turn in your results</h4>
+    <label class="name" for="subName">Your name</label>
+    <input class="name" id="subName" type="text" maxlength="40" autocomplete="off">
+    <label class="small" for="resText" style="display:block;margin-top:12px">${SUBMIT.formUrl?"This is what will be sent. You can still change it in the form before you press Submit.":"Copy your results and paste them where your teacher asked."}</label>
+    <textarea class="restext" id="resText" rows="5" readonly></textarea>
+    <div class="benchbtns">${SUBMIT.formUrl?'<a class="btn" id="subLink" target="_blank" rel="noopener" href="#">Submit my results</a>':""}<button class="btn ghost" type="button" id="copyRes">Copy my results</button></div>
+    <p class="small" id="copyMsg" aria-live="polite"></p>
+   </div>
+   <div class="benchbtns" style="margin-top:8px"><button class="btn" type="button" id="backHome">Back to level select</button><button class="btn ghost" type="button" id="again">Replay level 1</button></div>`;
+  wireSubmit();
+  $("#backHome").addEventListener("click",showHome);
+  $("#again").addEventListener("click",startLevel1);
+}
+
+/* ==================================================================
+   LEVELS 2 AND 3: shared tools
+   ================================================================== */
+document.body.insertAdjacentHTML("afterbegin",
+ `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+   <filter id="fCvd" color-interpolation-filters="linearRGB"><feColorMatrix id="cmUser" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+   <filter id="fTgt" color-interpolation-filters="linearRGB"><feColorMatrix id="cmTgt" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/></filter>
+ </defs></svg>`);
+
+/* color-vision simulation matrices (Machado et al. 2009, full severity, applied in linear RGB) */
+const I3=[[1,0,0],[0,1,0],[0,0,1]];
+const PROTAN=[[.152286,1.052583,-.204868],[.114503,.786281,.099216],[-.003882,-.048116,1.051998]];
+const DEUTAN=[[.367322,.860646,-.227968],[.280085,.672501,.047413],[-.011820,.042940,.968881]];
+const TRITAN=[[1.255528,-.076749,-.178779],[-.078411,.930809,.147602],[.004733,.691367,.303900]];
+const GRAYM=[[.2126,.7152,.0722],[.2126,.7152,.0722],[.2126,.7152,.0722]];
+const lerpM=(A,B,t)=>A.map((r,i)=>r.map((v,j)=>v+(B[i][j]-v)*t));
+const mulM=(A,B)=>A.map(r=>[0,1,2].map(j=>r[0]*B[0][j]+r[1]*B[1][j]+r[2]*B[2][j]));
+function cvdMatrix(c){
+  const low=[c.L,c.M,c.S].filter(v=>v<.1).length;
+  if(low>=2) return GRAYM;
+  return mulM(lerpM(I3,PROTAN,1-c.L),mulM(lerpM(I3,DEUTAN,1-c.M),lerpM(I3,TRITAN,1-c.S)));
+}
+function setFilter(id,c){
+  const m=cvdMatrix(c), v=m.map(r=>r.map(x=>x.toFixed(4)).join(" ")+" 0 0").join("  ")+"  0 0 0 1 0";
+  const e=$("#"+id); if(e) e.setAttribute("values",v);
+}
+/* approximate cone and rod sensitivity by wavelength */
+const gauss=(w,mu,sd)=>Math.exp(-.5*Math.pow((w-mu)/sd,2));
+const resp=w=>({S:gauss(w,420,25),M:gauss(w,534,40),L:gauss(w,564,42),R:gauss(w,498,40)});
+function wl2rgb(w){
+  let r=0,g=0,b=0;
+  if(w<440){r=-(w-440)/60;b=1;} else if(w<490){g=(w-440)/50;b=1;} else if(w<510){g=1;b=-(w-510)/20;}
+  else if(w<580){r=(w-510)/70;g=1;} else if(w<645){r=1;g=-(w-645)/65;} else {r=1;}
+  const f=w<420?.3+.7*(w-380)/40:(w>700?.3+.7*(780-w)/80:1);
+  return [r,g,b].map(v=>Math.round(255*Math.pow(Math.max(0,v)*f,.8))).join(",");
+}
+const CONE_FILL={R:"#C9B8D9",L:"#E0584A",M:"#5FB35F",S:"#4A6FE0"};
+
+/* level screen shell and progress meter */
+function levelShell(title,m1t,m2t,total,sceneSvg,m2left){
+  const meter=`<div class="meter"><p class="meter-label" id="meterlabel" aria-live="polite"></p><div class="stitches" id="stitches" aria-hidden="true"></div></div>`;
+  const m2screen=`<div class="screen"><p class="screen-title">${m2t}</p><div id="m2"></div></div>`;
+  const left=m2left
+    ? `<aside class="leftcol"><div class="scene" aria-label="Frank on the lab table">${sceneSvg||TABLE_SVG}${meter}</div><div class="pin"><div class="monitor single">${m2screen}</div></div></aside>`
+    : `<aside class="scene" aria-label="Frank on the lab table">${sceneSvg||TABLE_SVG}${meter}</aside>`;
+  app.innerHTML=`<div class="lvl"><div class="lvl-head"><h2>${title}</h2><p class="phase" id="phase"></p></div>
+   <div class="lab${m2left?" m2left":""}">${left}
+    <section><div class="monitor${m2left?" single":""}">
+      <div class="screen"><p class="screen-title">${m1t}</p><div id="m1"></div></div>${m2left?"":m2screen}</div>
+     <div class="panel bench" id="bench"></div></section></div></div>`;
+  const st=$("#stitches"); for(let i=0;i<total;i++){const d=document.createElement("div"); d.className="stitch"; st.appendChild(d);}
+}
+function paintMeterN(n,total,label){
+  $$("#stitches .stitch").forEach((s,i)=>s.classList.toggle("on",i<n));
+  $("#meterlabel").textContent=label+": "+n+" of "+total+" steps done";
+  $("#tbody").style.setProperty("--vit",String(n/total));
+}
+function sayIn(S,msg,kind){ S.notice=msg; S.noticeKind=kind||""; const n=$("#notice"); if(n){n.textContent=msg; n.className="notice "+(kind||"");} }
+
+/* multiple-choice engine with the mastery loop (missed questions return) */
+function makeQuiz(o){
+  const Q={queue:shuffle(o.items.map((_,i)=>i)),done:new Set(),missed:{},firstTry:0,cur:-1,locked:false,curMissed:false,curQueued:false,opts:[],retry:false};
+  function next(){
+    if(!Q.queue.length){ o.onDone({firstTry:Q.firstTry,total:o.items.length}); return; }
+    Q.cur=Q.queue.shift(); Q.curMissed=false; Q.curQueued=false; Q.locked=false; Q.retry=false; render();
+  }
+  function render(){
+    const it=o.items[Q.cur], returning=!!Q.missed[Q.cur];
+    $("#bench").innerHTML=`<h3 class="bt">${esc(o.title)}</h3>${Q.retry?'<span class="returning">Second try</span>':(returning?'<span class="returning">Returning question: you missed this earlier</span>':"")}
+     <p class="stepline">${Q.done.size} of ${o.items.length} questions mastered</p>
+     ${it.story?`<p class="story">${esc(it.story)}</p>`:""}<h4 class="q">${esc(it.q)}</h4><div class="opts" id="qopts"></div><div class="fb" id="qfb" aria-live="polite"></div>`;
+    Q.opts=shuffle([{t:it.right,ok:true}].concat(it.wrong.map(t=>({t:t,ok:false}))));
+    const list=$("#qopts");
+    Q.opts.forEach((op,i)=>{const b=document.createElement("button"); b.type="button"; b.className="opt"; b.innerHTML=`<span class="k">${i+1}</span><span>${esc(op.t)}</span>`; b.addEventListener("click",()=>answer(i)); list.appendChild(b);});
+  }
+  function answer(i){
+    if(Q.locked) return; Q.locked=true;
+    const it=o.items[Q.cur], ok=Q.opts[i].ok;
+    $$("#qopts .opt").forEach((b,j)=>{b.disabled=true; if(Q.opts[j].ok){b.classList.add("right");b.firstChild.textContent="✓";} else if(j===i){b.classList.add("wrong");b.firstChild.textContent="✗";} else b.classList.add("dim");});
+    const fb=$("#qfb");
+    fb.innerHTML=`<p class="verdict-t">${ok?"Correct.":"Not quite."}</p><p>${esc(it.why)}</p>${ok?(Q.retry?"<p>Well done. You won’t need to see this one again.</p>":""):"<p>Try this question again right now, or move on and it will come back later.</p>"}`;
+    if(ok){ Snd.place();
+      if(Q.retry&&Q.curMissed){ Q.queue=Q.queue.filter(x=>x!==Q.cur); Q.curMissed=false; Q.curQueued=false; }
+      if(!Q.curMissed){Q.done.add(Q.cur); if(!Q.missed[Q.cur]) Q.firstTry++;} }
+    else { Snd.wrong(); if(!Q.curMissed){Q.curMissed=true; Q.missed[Q.cur]=(Q.missed[Q.cur]||0)+1; if(o.onWrong) o.onWrong(); if(!Q.curQueued){Q.curQueued=true; Q.queue.splice(Math.min(2,Q.queue.length),0,Q.cur);}} }
+    if(o.onProgress) o.onProgress(Q.done.size);
+    const nb=document.createElement("button"); nb.type="button"; nb.className="btn"; nb.textContent=Q.queue.length?"Next question":"Continue"; nb.addEventListener("click",next);
+    if(!ok){
+      const rb=document.createElement("button"); rb.type="button"; rb.className="btn"; rb.textContent="Try this question again now";
+      rb.addEventListener("click",()=>{Q.retry=true; Q.locked=false; render();});
+      nb.className="btn ghost"; nb.textContent="Move on (it comes back later)"; fb.appendChild(rb); fb.appendChild(nb); rb.focus();
+    } else { fb.appendChild(nb); nb.focus(); }
+  }
+  return {start:next};
+}
+
+/* results box shared by the finished-level screens */
+function submitBoxHTML(){
+  return `<div class="submitbox"><h4 class="q">Turn in your results</h4>
+    <label class="name" for="subName">Your name</label><input class="name" id="subName" type="text" maxlength="40" autocomplete="off">
+    <label class="small" for="resText" style="display:block;margin-top:12px">${SUBMIT.formUrl?"This is what will be sent. You can still change it in the form before you press Submit.":"Copy your results and paste them where your teacher asked."}</label>
+    <textarea class="restext" id="resText" rows="5" readonly></textarea>
+    <div class="benchbtns">${SUBMIT.formUrl?'<a class="btn" id="subLink" target="_blank" rel="noopener" href="#">Submit my results</a>':""}<button class="btn ghost" type="button" id="copyRes">Copy my results</button></div>
+    <p class="small" id="copyMsg" aria-live="polite"></p></div>`;
+}
+function wireSubmitBox(getData){
+  const nm=$("#subName"), ta=$("#resText"), link=$("#subLink"), msg=$("#copyMsg");
+  const paint=()=>{const d=getData(); ta.value=d.summary; if(link) link.href=formLink(d,d.levelNum);};
+  nm.value=save.name||""; paint();
+  nm.addEventListener("input",()=>{save.name=nm.value.trim(); Store.save(save); paint();});
+  $("#copyRes").addEventListener("click",async()=>{msg.textContent=(await copyText(ta.value))?"Copied. Paste it where your teacher asked.":"Select the text above and copy it.";});
+}
+function makeResults(n,levelName,st,dateIso){
+  const mm=Math.floor(st.secs/60), ss=String(st.secs%60).padStart(2,"0");
+  const d={name:save.name||"",level:String(n),partsWrong:String(st.wrong),hints:String(st.hints),firstTry:String(st.firstTry),time:mm+":"+ss,date:(dateIso?new Date(dateIso):new Date()).toLocaleDateString(),levelNum:n};
+  d.summary="Frank’s Laboratory, "+levelName+". Student: "+(d.name||"(no name)")+". Mistakes: "+d.partsWrong+". Hints used: "+d.hints+
+    ". Items correct on the first try: "+d.firstTry+" of "+st.total+". Time: "+d.time+". Date: "+d.date+".";
+  return d;
+}
+function savedResults(n){
+  const r=save.levels[n]; if(!r||!r.done) return null;
+  return makeResults(n,LEVEL_NAMES[n],{wrong:r.wrong||0,hints:r.hints||0,firstTry:r.firstTry||0,total:r.total||0,secs:r.secs||0},r.date);
+}
+function renderLevelDone(n,levelName,st,msg,replay){
+  const mm=Math.floor(st.secs/60), ss=String(st.secs%60).padStart(2,"0");
+  $("#bench").innerHTML=`<h3 class="bt">${esc(msg.title)}</h3><p>${esc(msg.body)}</p>
+   <ul class="stats"><li>Mistakes along the way: ${st.wrong}</li><li>Hints used: ${st.hints}</li><li>Items correct on the first try: ${st.firstTry} of ${st.total}</li><li>Time: ${mm}:${ss}</li><li>Date: ${esc(new Date().toLocaleDateString())}</li></ul>
+   ${submitBoxHTML()}<div class="benchbtns" style="margin-top:8px"><button class="btn" type="button" id="backHome">Back to level select</button><button class="btn ghost" type="button" id="again">Replay level ${n}</button></div>`;
+  wireSubmitBox(()=>makeResults(n,levelName,st));
+  $("#backHome").addEventListener("click",showHome); $("#again").addEventListener("click",replay);
+}
+function celebrate(){
+  const fl=$("#flashlayer"); fl.classList.remove("flash"); void fl.offsetWidth; fl.classList.add("flash"); Snd.thunder();
+}
+
+/* ==================================================================
+   LEVEL 2: THE RETINA
+   ================================================================== */
+const RET_TYPES=["R","L","R","M","R","S","R","L","M","R","S"];
+function retinaSVG(){
+  const xs=RET_TYPES.map((_,i)=>190+i*42), bip=[250,330,410,490,570], gan=[250,410,570];
+  const nearest=(arr,x)=>arr.reduce((b,v)=>Math.abs(v-x)<Math.abs(b-x)?v:b,arr[0]);
+  const badge=(x,y,n)=>`<g class="nb"><circle cx="${x}" cy="${y}" r="12"/><text x="${x}" y="${y+5}">${n}</text></g>`;
+  let s=`<svg id="ret" viewBox="0 0 820 400" role="group" aria-label="Cross-section of Frank’s retina. Light enters from the top.">`;
+  s+=`<rect id="beam" x="170" y="30" width="460" height="300" fill="#fff" opacity="0"/>`;
+  s+=`<g stroke="#FFD479" stroke-width="2.5" fill="none">${[250,410,570].map(x=>`<path d="M${x} 4 V28 M${x-6} 21 L${x} 28 L${x+6} 21"/>`).join("")}</g>`;
+  s+=`<rect x="170" y="338" width="460" height="28" rx="6" fill="#3A2A22"/>`;
+  s+=`<g stroke="#6C7F78" stroke-width="1.5">${xs.map(x=>`<line x1="${x}" y1="262" x2="${nearest(bip,x)}" y2="192"/>`).join("")}${bip.map(b=>`<line x1="${b}" y1="146" x2="${nearest(gan,b)}" y2="84"/>`).join("")}</g>`;
+  /* photoreceptors */
+  s+=`<g class="rs" data-struct="photo" tabindex="0" role="button" aria-label="Rods and cones"><rect class="hitr" x="172" y="250" width="456" height="90" rx="8"/>`+
+     RET_TYPES.map((t,i)=>{const x=xs[i]; return t==="R"
+       ? `<rect data-cone="R" x="${x-4}" y="262" width="8" height="76" rx="3" fill="${CONE_FILL.R}" stroke="#7B8B86" stroke-width="0"/>`
+       : `<polygon data-cone="${t}" points="${x-9},262 ${x+9},262 ${x+4},336 ${x-4},336" fill="${CONE_FILL[t]}" stroke="#7B8B86" stroke-width="0"/>`;}).join("")+
+     badge(150,300,1)+`</g>`;
+  /* bipolar cells */
+  s+=`<g class="rs" data-struct="bip" tabindex="0" role="button" aria-label="Bipolar cells"><rect class="hitr" x="172" y="136" width="456" height="68" rx="8"/>`+
+     bip.map(x=>`<ellipse cx="${x}" cy="170" rx="9" ry="24" fill="#8FC1A9" stroke="#2D5A4A" stroke-width="2"/>`).join("")+badge(150,170,2)+`</g>`;
+  /* ganglion cells */
+  s+=`<g class="rs" data-struct="gang" tabindex="0" role="button" aria-label="Ganglion cells"><rect class="hitr" x="172" y="50" width="456" height="46" rx="8"/>`+
+     gan.map(x=>`<circle cx="${x}" cy="70" r="14" fill="#E3A857" stroke="#6B4A14" stroke-width="2"/>`).join("")+badge(150,70,3)+`</g>`;
+  /* optic nerve */
+  s+=`<g class="rs" data-struct="nerve" tabindex="0" role="button" aria-label="Optic nerve"><rect class="hitr" x="628" y="30" width="68" height="344" rx="12"/>
+     <path d="M250 56 V40 H650 M410 56 V40 M570 56 V40" stroke="#E8C98A" stroke-width="3" fill="none"/>
+     <rect x="640" y="34" width="44" height="330" rx="20" fill="#E8C98A" stroke="#4E3B1A" stroke-width="3"/>${badge(662,16,4)}</g>`;
+  s+=`<text x="8" y="22" font-size="13">Light enters from the top</text><text x="8" y="75">Ganglion cells</text><text x="8" y="175">Bipolar cells</text><text x="8" y="296">Rods and cones</text><text x="8" y="357">Pigment layer</text><text x="694" y="214">Optic nerve</text>`;
+  return s+`</svg>`;
+}
+function paintRetina(cone,wl){
+  const r=wl?resp(wl):null;
+  $$("#ret [data-cone]").forEach(e=>{
+    const t=e.dataset.cone, sens=t==="R"?1:cone[t], off=sens<.1;
+    e.classList.toggle("off",off);
+    let op=.4+.6*sens; if(r) op=.22+.78*r[t]*sens; if(off) op=1;
+    e.style.opacity=String(op);
+  });
+  const b=$("#beam"); if(b){ if(wl){b.setAttribute("fill","rgb("+wl2rgb(wl)+")"); b.setAttribute("opacity",".16");} else b.setAttribute("opacity","0"); }
+}
+
+/* dot-pattern plates (Ishihara style, made from scratch) */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const PLATE_PAL={
+  rg:{fig:[[193,120,40],[201,130,46],[185,110,34]],bg:[[167,175,71],[175,185,77],[159,165,65]]},
+  by:{fig:[[47,150,172],[55,160,178],[39,140,166]],bg:[[91,183,136],[99,193,142],[83,173,130]]}
+};
+const PLATE_CACHE={};
+function plateDots(digits,kind){
+  const key=digits+kind; if(PLATE_CACHE[key]) return PLATE_CACHE[key];
+  const S=280, R=S/2-4, rnd=mulberry32(digits.split("").reduce((a,c)=>a*31+c.charCodeAt(0),kind==="rg"?7:19));
+  const m=document.createElement("canvas"); m.width=m.height=S;
+  const mc=m.getContext&&m.getContext("2d"); if(!mc) return [];
+  mc.fillStyle="#000"; mc.fillRect(0,0,S,S); mc.fillStyle="#fff"; mc.font="bold 170px Arial, Helvetica, sans-serif"; mc.textAlign="center"; mc.textBaseline="middle"; mc.fillText(digits,S/2,S/2+8);
+  const md=mc.getImageData(0,0,S,S).data, dots=[];
+  for(let tries=0;tries<9000&&dots.length<1100;tries++){
+    const r=3+rnd()*(tries<2500?7:3), a=rnd()*Math.PI*2, d=Math.sqrt(rnd())*(R-r), x=S/2+Math.cos(a)*d, y=S/2+Math.sin(a)*d;
+    let ok=true; for(let i=0;i<dots.length;i++){const q=dots[i], dx=x-q.x, dy=y-q.y, rr=r+q.r+1.2; if(dx*dx+dy*dy<rr*rr){ok=false;break;}}
+    if(!ok) continue;
+    const inside=md[((y|0)*S+(x|0))*4]>128, pal=PLATE_PAL[kind][inside?"fig":"bg"], c=pal[Math.floor(rnd()*pal.length)], k=.88+rnd()*.24;
+    dots.push({x:x,y:y,r:r,col:"rgb("+c.map(v=>Math.min(255,Math.round(v*k))).join(",")+")"});
+  }
+  return PLATE_CACHE[key]=dots;
+}
+function drawPlate(id,digits,kind){
+  const cv=document.getElementById(id); if(!cv||!cv.getContext) return;
+  const ctx=cv.getContext("2d"); if(!ctx) return;
+  ctx.fillStyle="#E8E4D6"; ctx.fillRect(0,0,280,280);
+  plateDots(digits,kind).forEach(d=>{ctx.fillStyle=d.col; ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,Math.PI*2); ctx.fill();});
+}
+const VIALS=["#D33A3A","#E8873A","#EFD43C","#4FAE55","#35A8A0","#3F65D6","#8A50C8","#E27AA6"];
+function vialsSVG(){
+  return `<svg viewBox="0 0 320 200" role="img" aria-label="A shelf of eight colored potion vials"><rect width="320" height="200" fill="#2B2230"/><rect x="10" y="150" width="300" height="10" fill="#5B4636"/>`+
+   VIALS.map((c,i)=>{const x=24+i*36; return `<rect x="${x}" y="84" width="22" height="66" rx="6" fill="${c}"/><rect x="${x+5}" y="72" width="12" height="14" rx="2" fill="#B9A58A"/><rect x="${x+3}" y="96" width="5" height="40" rx="2" fill="#fff" opacity=".22"/>`;}).join("")+`</svg>`;
+}
+function rainbowSVG(uid){
+  const gid="rbg"+(uid||""), stops=[];for(let w=400;w<=700;w+=20) stops.push(`<stop offset="${((w-400)/300*100).toFixed(0)}%" stop-color="rgb(${wl2rgb(w)})"/>`);
+  return `<svg viewBox="0 0 320 200" role="img" aria-label="A strip showing the visible spectrum from violet to red"><rect width="320" height="200" fill="#2B2230"/><defs><linearGradient id="${gid}" x1="0" x2="1">${stops.join("")}</linearGradient></defs><rect x="10" y="60" width="300" height="80" fill="url(#${gid})"/><text x="10" y="165" font-size="12" fill="#CBEADF">400 nm</text><text x="310" y="165" font-size="12" fill="#CBEADF" text-anchor="end">700 nm</text></svg>`;
+}
+function fruitSVG(){
+  return `<svg viewBox="0 0 320 200" role="img" aria-label="A fruit stand with a red apple, a green apple, an orange, a strawberry, blueberries, and green leaves"><rect width="320" height="200" fill="#2B2230"/>
+   <g fill="#328C3C"><ellipse cx="62" cy="64" rx="38" ry="14" transform="rotate(-22 62 64)"/><ellipse cx="258" cy="60" rx="38" ry="14" transform="rotate(20 258 60)"/><ellipse cx="160" cy="44" rx="34" ry="12"/><ellipse cx="110" cy="50" rx="26" ry="10" transform="rotate(-12 110 50)"/></g>
+   <rect x="10" y="152" width="300" height="12" fill="#5B4636"/>
+   <circle cx="44" cy="120" r="30" fill="#C82328"/><path d="M44 90 q2 -14 10 -18" stroke="#5B3A1E" stroke-width="3" fill="none"/>
+   <circle cx="106" cy="122" r="28" fill="#78B937"/><path d="M106 94 q2 -14 10 -18" stroke="#5B3A1E" stroke-width="3" fill="none"/>
+   <circle cx="168" cy="126" r="26" fill="#F08C1E"/>
+   <circle cx="218" cy="130" r="20" fill="#D72846"/><path d="M206 112 l12 8 l12 -8 l-6 -6 h-12 z" fill="#328C3C"/>
+   <circle cx="256" cy="136" r="9" fill="#3C50AA"/><circle cx="274" cy="130" r="9" fill="#3C50AA"/><circle cx="266" cy="144" r="9" fill="#3C50AA"/>
+  </svg>`;
+}
+function lightsSVG(){
+  const lamp=(x,y,c,on)=>`<circle cx="${x}" cy="${y}" r="22" fill="${on?c:"#3A3040"}" stroke="#14101A" stroke-width="3"/>`;
+  return `<svg viewBox="0 0 320 200" role="img" aria-label="Two traffic lights, one showing red and one showing green"><rect width="320" height="200" fill="#2B2230"/>
+   <rect x="64" y="14" width="64" height="172" rx="12" fill="#14101A"/>${lamp(96,44,"#EB2828",true)}${lamp(96,100,"#FAAA1E",false)}${lamp(96,156,"#28C85A",false)}
+   <rect x="192" y="14" width="64" height="172" rx="12" fill="#14101A"/>${lamp(224,44,"#EB2828",false)}${lamp(224,100,"#FAAA1E",false)}${lamp(224,156,"#28C85A",true)}</svg>`;
+}
+const SCENES=[{id:"plate1",name:"Plate 1"},{id:"plate2",name:"Plate 2"},{id:"vials",name:"Potion vials"},{id:"rainbow",name:"Rainbow"},{id:"fruit",name:"Fruit stand"},{id:"lights",name:"Signal lights"}];
+
+const L2_QUIZ=[
+ {q:"Light entering the eye has to pass through which layers before it reaches the rods and cones?",right:"The ganglion cells and bipolar cells",wrong:["Only the pigment layer","Nothing, because the rods and cones are at the front","The optic nerve"],why:"The retina is built “backwards.” Light passes through the ganglion and bipolar cell layers first, and the photoreceptors sit at the back."},
+ {q:"Which photoreceptors work best in dim light but cannot tell colors apart?",right:"Rods",wrong:["S cones","L cones","Ganglion cells"],why:"Rods are very sensitive to light but contain a single pigment, so they cannot signal color. Cones need brighter light."},
+ {q:"Where in the retina are cones packed most densely?",right:"The fovea",wrong:["The outer edges of the retina","The optic disc where the nerve leaves","The pigment layer"],why:"The fovea is almost all cones, which is why we look straight at something to see fine detail and color."},
+ {q:"Why does every eye have a blind spot?",right:"There are no rods or cones where the optic nerve leaves the eye",wrong:["The fovea has no cones","The lens blocks part of the image","Bipolar cells absorb some of the light"],why:"The ganglion cell axons gather and exit at the optic disc, and that spot has no photoreceptors."},
+ {q:"What forms the optic nerve?",right:"The axons of the ganglion cells",wrong:["The axons of the rods and cones","The bipolar cells","The pigment layer"],why:"Ganglion cell axons bundle together and carry the signal out of the eye toward the brain."}
+];
+const CVD_CASES=[
+ {id:"protan",cfg:{L:0,M:1,S:1},cond:"Protanopia",digits:"74",kind:"rg",
+  story:"Frank confuses red apples with green leaves. Bright reds look dark and brownish to him, but blues and yellows look normal.",
+  why:"Protanopia: the L (long-wavelength) cones are missing or not working. Reds look dim and brownish, and reds and greens are easy to confuse."},
+ {id:"deutan",cfg:{L:1,M:0,S:1},cond:"Deuteranopia",digits:"74",kind:"rg",
+  story:"Frank mixes up reds, greens, and browns. Unlike some patients, bright reds do not look dim to him. Blues and yellows are fine.",
+  why:"Deuteranopia: the M (medium-wavelength) cones are missing. With only L cones working in the red-green range, reds, greens, and browns blur together."},
+ {id:"tritan",cfg:{L:1,M:1,S:0},cond:"Tritanopia",digits:"29",kind:"by",
+  story:"Frank can tell red from green, but blue and green look nearly the same to him, and yellow looks pale or pinkish.",
+  why:"Tritanopia: the S (short-wavelength) cones are missing, which is rare. Blues and greens blend together, and yellows can look pale."},
+ {id:"rodmono",cfg:{L:0,M:0,S:0},cond:"Rod monochromacy",digits:"74",kind:"rg",
+  story:"Frank sees everything in shades of gray. Bright light hurts his eyes, and he sees best at dusk.",
+  why:"Rod monochromacy (achromatopsia): no cones are working, so only rods respond. Everything looks gray, and bright light is uncomfortable."},
+ {id:"deutanomaly",cfg:{L:1,M:.5,S:1},cond:"Deuteranomaly",digits:"74",kind:"rg",
+  story:"Frank sees most colors, but greens look shifted toward red, and he sometimes mixes up similar reds and greens. It is worse than normal, but not a total loss.",
+  why:"Deuteranomaly: the M cones work, but not as well, so the red-green balance is shifted. It is the most common color deficiency and a type of anomalous trichromacy."}
+];
+const CASE_BY=Object.fromEntries(CVD_CASES.map(c=>[c.id,c]));
+const PRESETS=[{id:"normal",name:"Normal",c:{L:1,M:1,S:1}},{id:"protan",name:"No L cones",c:{L:0,M:1,S:1}},{id:"deutan",name:"No M cones",c:{L:1,M:0,S:1}},{id:"tritan",name:"No S cones",c:{L:1,M:1,S:0}},{id:"rodmono",name:"No cones",c:{L:0,M:0,S:0}}];
+const CVD_LEGEND=open=>`<details class="vocab"${open?" open":""}><summary>Color blindness words</summary><dl>
+  <dt>L, M, and S cones</dt><dd>The three kinds of cones. L = long wavelengths (reds), M = medium wavelengths (greens), S = short wavelengths (blues).</dd>
+  <dt>Protanopia</dt><dd>Red-green color blindness from having NO working L (long-wavelength) cones. Reds look dark and dull.</dd>
+  <dt>Deuteranopia</dt><dd>Red-green color blindness from having NO working M (medium-wavelength) cones. Reds and greens blend together, but reds do not look as dark.</dd>
+  <dt>Tritanopia</dt><dd>Blue-yellow color blindness from having NO working S (short-wavelength) cones. This one is rare.</dd>
+  <dt>Rod monochromacy</dt><dd>Also called achromatopsia. NO working cones, so only the rods respond. Everything looks gray, and bright light is uncomfortable.</dd>
+  <dt>Anomaly, as in deuteranomaly</dt><dd>The cone type still works, but not as well. It is a milder, partial color deficiency. Deuteranomaly means weak M cones, and protanomaly means weak L cones.</dd>
+ </dl></details>`;
+const VIS_TXT={protan:"Protanopia: no L cones",deutan:"Deuteranopia: no M cones",tritan:"Tritanopia: no S cones",rodmono:"Rod monochromacy: no working cones"};
+const CONE_NAME={L:"L (long-wavelength, “red”)",M:"M (medium-wavelength, “green”)",S:"S (short-wavelength, “blue”)"};
+const STRUCT_ORDER=["photo","bip","gang","nerve"], STRUCT_NAME={photo:"Rods and cones",bip:"Bipolar cells",gang:"Ganglion cells",nerve:"Optic nerve"};
+const condOf=c=>{const lo=[c.L,c.M,c.S].filter(v=>v<.1).length; if(lo>=2) return "rodmono"; if(c.L<.1&&c.M>.9&&c.S>.9) return "protan"; if(c.M<.1&&c.L>.9&&c.S>.9) return "deutan"; if(c.S<.1&&c.L>.9&&c.M>.9) return "tritan"; return null;};
+const coneOk=(v,t)=>t===0?v<=.1:(t===1?v>=.9:Math.abs(v-t)<=.2);
+const matches=(c,t)=>coneOk(c.L,t.L)&&coneOk(c.M,t.M)&&coneOk(c.S,t.S);
+
+let L2=null;
+function startLevel2(){
+  L2={phase:"path",idx:0,wrong:0,hints:0,firstTry:0,cone:{L:1,M:1,S:1},scene:"plate1",wl:550,visited:{protan:false,deutan:false,tritan:false,rodmono:false},
+      pathDone:false,quizDone:0,testsDone:0,start:Date.now(),notice:"",noticeKind:"",T:null};
+  $("#homeBtn").hidden=false; stopStatic(); clearL3Timer();
+  levelShell("Level 2: The retina","Monitor 1: Frank’s retina, side view","Monitor 2: Frank’s view",15,undefined,true);
+  $("#m1").innerHTML=retinaSVG();
+  $("#ret").addEventListener("click",e=>{const s=e.target.closest(".rs"); if(s&&L2&&L2.phase==="path") l2Struct(s.dataset.struct);});
+  $("#ret").addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ") return; const s=e.target.closest&&e.target.closest(".rs"); if(s&&L2&&L2.phase==="path"){e.preventDefault(); l2Struct(s.dataset.struct);}});
+  setFilter("cmUser",L2.cone); paintRetina(L2.cone,null);
+  l2Path(); window.scrollTo({top:0,behavior:"auto"});
+}
+function l2Progress(){
+  const vis=Object.values(L2.visited).filter(Boolean).length;
+  paintMeterN((L2.pathDone?1:0)+L2.quizDone+vis+L2.testsDone,15,"Retina repair");
+}
+function l2Path(){
+  L2.phase="path"; $("#phase").textContent="Part 1 of 3: The path of the signal";
+  $("#m2").innerHTML=`<p class="facts"><b>Rods:</b> about 120 million. Work in dim light. No color.<br><br><b>Cones:</b> about 6 million. Need brighter light. Color and fine detail. Three types: S, M, and L.<br><br><b>Fovea:</b> the tiny center of the retina, almost all cones.</p>`;
+  l2Progress(); l2PathBench();
+}
+function l2PathBench(){
+  $("#bench").innerHTML=`<h3 class="bt">Follow the signal</h3>
+   <p class="help">Click the structures on Monitor 1 in the order a signal travels. Start with the cells that detect light and end with the nerve that leaves the eye.</p>
+   <ol class="checks">${STRUCT_ORDER.map((k,i)=>`<li class="${i<L2.idx?"ok":""}">${i<L2.idx?"✓ "+STRUCT_NAME[k]:"Step "+(i+1)+": ?"}</li>`).join("")}</ol>
+   <p id="notice" class="notice ${L2.noticeKind}" aria-live="polite">${esc(L2.notice)}</p>
+   ${L2.idx===4?'<button class="btn" id="toQuiz" type="button">Continue to the retina checkpoint</button>':""}`;
+  const b=$("#toQuiz"); if(b) b.addEventListener("click",l2Quiz);
+}
+function l2Struct(name){
+  if(L2.idx>=4) return;
+  if(name===STRUCT_ORDER[L2.idx]){
+    L2.idx++; Snd.place(); const g=$(`.rs[data-struct="${name}"]`); if(g) g.classList.add("done");
+    if(L2.idx===4){L2.pathDone=true; Snd.zap(); sayIn(L2,"That’s the path: rods and cones detect light, bipolar cells pass the message on, ganglion cells collect it, and their axons form the optic nerve.","good"); l2Progress();}
+    else sayIn(L2,STRUCT_NAME[name]+" first. Good. What comes next?","good");
+  } else {
+    L2.wrong++; Snd.wrong();
+    sayIn(L2,"Not yet. Think about which cells detect light, which pass the message along, and which carry it out of the eye.","bad");
+  }
+  l2PathBench();
+}
+function l2Quiz(){
+  L2.phase="quiz"; $("#phase").textContent="Part 1 of 3: Retina checkpoint";
+  makeQuiz({title:"Retina checkpoint",items:L2_QUIZ,onWrong:()=>{L2.wrong++;},onProgress:n=>{L2.quizDone=n; l2Progress();},onDone:s=>{L2.firstTry+=s.firstTry; l2Lab();}}).start();
+}
+/* ---- cone lab ---- */
+function sliderRows(){
+  return [["L",CONE_NAME.L],["M",CONE_NAME.M],["S",CONE_NAME.S]].map(([k,lab])=>`<div class="srow"><label for="s${k}">${lab}</label><input id="s${k}" type="range" min="0" max="100" step="5" value="100"><output id="o${k}" for="s${k}">100%</output><button type="button" class="chipb" data-tog="${k}">Turn off</button></div>`).join("");
+}
+function curvePts(t,sens){let p=[]; for(let w=400;w<=700;w+=5) p.push((10+(w-400)/300*280).toFixed(1)+","+(98-resp(w)[t]*84*sens).toFixed(1)); return p.join(" ");}
+function chartSVG(){
+  return `<svg id="wlChart" viewBox="0 0 300 118" role="img" aria-label="How strongly each receptor type responds to each wavelength of light"><rect width="300" height="118" fill="#0C1A18" rx="6"/>`+
+   ["S","M","L","R"].map(t=>`<polyline data-ch="${t}" points="${curvePts(t,1)}" fill="none" stroke="${CONE_FILL[t]}" stroke-width="2.5"${t==="R"?' stroke-dasharray="4 3"':""}/>`).join("")+
+   `<line id="wlMark" x1="150" x2="150" y1="8" y2="100" stroke="#fff" stroke-width="1.5"/><text x="10" y="114" font-size="10" fill="#9FD3C6">400 nm</text><text x="290" y="114" font-size="10" fill="#9FD3C6" text-anchor="end">700 nm</text></svg>`;
+}
+function paintScene(host,sc,cid){
+  if(!host) return;
+  if(sc==="plate1"||sc==="plate2"){
+    const d=sc==="plate1"?["74","rg"]:["29","by"];
+    host.innerHTML=`<canvas class="plate" id="${cid}" width="280" height="280" role="img" aria-label="A pattern of colored dots hiding the number ${d[0]}"></canvas>`; drawPlate(cid,d[0],d[1]);
+  } else host.innerHTML=sc==="vials"?vialsSVG():(sc==="rainbow"?rainbowSVG(cid):(sc==="fruit"?fruitSVG():lightsSVG()));
+}
+function setScene(){
+  paintScene($("#sceneBox"),L2.scene,"plateU");
+  $$("[data-scene]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.scene===L2.scene)));
+}
+function paintTestScenes(){
+  paintScene($("#boxT"),L2.scene,"plateT"); paintScene($("#boxU"),L2.scene,"plateU");
+  $$("#m2 [data-scene]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.scene===L2.scene)));
+}
+function coneChanged(cb){
+  ["L","M","S"].forEach(k=>{
+    const v=Math.round(L2.cone[k]*100), s=$("#s"+k); if(!s) return;
+    s.value=String(v); $("#o"+k).textContent=v+"%"; $(`[data-tog="${k}"]`).textContent=L2.cone[k]>=.5?"Turn off":"Turn on";
+  });
+  setFilter("cmUser",L2.cone); paintRetina(L2.cone,L2.phase==="lab"?L2.wl:null);
+  if(cb) cb();
+}
+function wireCones(cb){
+  ["L","M","S"].forEach(k=>{
+    $("#s"+k).addEventListener("input",e=>{L2.cone[k]=e.target.value/100; coneChanged(cb);});
+    $(`[data-tog="${k}"]`).addEventListener("click",()=>{L2.cone[k]=L2.cone[k]>=.5?0:1; coneChanged(cb);});
+  });
+}
+function l2Lab(){
+  L2.phase="lab"; L2.notice=""; L2.noticeKind=""; $("#phase").textContent="Part 2 of 3: The cone lab";
+  $("#m2").innerHTML=`<div class="cvd" id="sceneBox"></div><p class="small" style="color:#8FC5B6;margin:8px 0 0">These views are standard approximations, not a perfect copy of any one person’s vision.</p>`;
+  $("#bench").innerHTML=`<h3 class="bt">Cone lab</h3>
+   <p class="help">Each slider sets how well one cone type works. Watch Frank’s view on Monitor 2 and the cones on Monitor 1. Reproduce all four conditions in the list to continue.</p>
+   ${CVD_LEGEND(true)}
+   <div class="presets" role="group" aria-label="Presets">${PRESETS.map(p=>`<button type="button" class="chipb" data-preset="${p.id}">${p.name}</button>`).join("")}</div>
+   ${sliderRows()}
+   <div class="tabs" role="group" aria-label="Test scene">${SCENES.map(s=>`<button type="button" class="chipb" data-scene="${s.id}" aria-pressed="false">${s.name}</button>`).join("")}</div>
+   <p class="small" style="margin:12px 0 4px"><label for="wl">Test light: <output id="wlOut"></output></label> <span class="sw" id="wlSw"></span></p>
+   <input id="wl" type="range" min="400" max="700" step="5" style="width:100%;max-width:440px;accent-color:#B8452F">
+   ${chartSVG()}
+   <ul class="checks" id="vis"></ul>
+   <div class="benchbtns"><button class="btn" id="toTests" type="button" disabled>Start Frank’s color tests</button></div>`;
+  const onChange=()=>{markVisited(); paintChart(); paintVis();};
+  wireCones(onChange);
+  $$("[data-preset]").forEach(b=>b.addEventListener("click",()=>{const p=PRESETS.find(x=>x.id===b.dataset.preset); L2.cone={L:p.c.L,M:p.c.M,S:p.c.S}; coneChanged(onChange);}));
+  $$("[data-scene]").forEach(b=>b.addEventListener("click",()=>{L2.scene=b.dataset.scene; setScene();}));
+  $("#wl").value=String(L2.wl); $("#wl").addEventListener("input",e=>{L2.wl=+e.target.value; paintRetina(L2.cone,L2.wl); paintChart();});
+  $("#toTests").addEventListener("click",l2Tests);
+  setScene(); coneChanged(onChange); l2Progress();
+}
+function markVisited(){
+  const c=condOf(L2.cone); if(c&&!L2.visited[c]){L2.visited[c]=true; Snd.place(); l2Progress();}
+}
+function paintChart(){
+  const x=10+(L2.wl-400)/300*280, m=$("#wlMark"); if(!m) return;
+  m.setAttribute("x1",x); m.setAttribute("x2",x);
+  ["S","M","L"].forEach(t=>{const p=$(`[data-ch="${t}"]`); if(p) p.setAttribute("points",curvePts(t,L2.cone[t]));});
+  $("#wlOut").textContent=L2.wl+" nm"; $("#wlSw").style.background="rgb("+wl2rgb(L2.wl)+")";
+}
+function paintVis(){
+  $("#vis").innerHTML=Object.keys(VIS_TXT).map(k=>`<li class="${L2.visited[k]?"ok":""}">${L2.visited[k]?"✓":"○"} ${VIS_TXT[k]}</li>`).join("");
+  $("#toTests").disabled=!Object.values(L2.visited).every(Boolean);
+}
+/* ---- Frank's color tests ---- */
+function l2Tests(){
+  L2.phase="tests"; L2.notice=""; L2.noticeKind=""; $("#phase").textContent="Part 3 of 3: Frank’s color tests";
+  L2.T={queue:shuffle(CVD_CASES.map(c=>c.id)),done:new Set(),missed:{},first:0,cur:null,step:"match",curMissed:false,curQueued:false,locked:false,returning:false,opts:[]};
+  nextTest();
+}
+function nextTest(){
+  const T=L2.T; if(!T.queue.length){ finishL2(); return; }
+  T.cur=CASE_BY[T.queue.shift()]; T.step="match"; T.curMissed=false; T.curQueued=false; T.locked=false; T.retry=false; T.matchMiss=false; T.returning=!!T.missed[T.cur.id];
+  L2.cone={L:1,M:1,S:1}; setFilter("cmUser",L2.cone); setFilter("cmTgt",T.cur.cfg); paintRetina(L2.cone,null);
+  L2.notice=""; L2.noticeKind="";
+  const c=T.cur; L2.scene=c.kind==="by"?"plate2":"plate1";
+  $("#m2").innerHTML=`<div class="plates"><div><p class="mini">Frank’s report</p><div class="cvdT" id="boxT"></div></div>
+   <div><p class="mini">Your simulation</p><div class="cvd" id="boxU"></div></div></div>
+   <div class="tabs" role="group" aria-label="Test scene">${SCENES.map(x=>`<button type="button" class="chipb" data-scene="${x.id}" aria-pressed="false">${x.name}</button>`).join("")}</div>`;
+  $$("#m2 [data-scene]").forEach(b=>b.addEventListener("click",()=>{L2.scene=b.dataset.scene; paintTestScenes();}));
+  paintTestScenes();
+  renderTestBench(); l2Progress();
+}
+function testMiss(){
+  const T=L2.T; if(T.curMissed) return;
+  T.curMissed=true; T.missed[T.cur.id]=(T.missed[T.cur.id]||0)+1; L2.wrong++;
+  if(!T.curQueued){T.curQueued=true; T.queue.splice(Math.min(2,T.queue.length),0,T.cur.id);}
+}
+function renderTestBench(){
+  const T=L2.T, c=T.cur;
+  let h=`<h3 class="bt">Color test</h3>${T.returning?'<span class="returning">Returning patient: you missed this test earlier</span>':""}
+   <p class="stepline">${T.step==="match"?"Step 1 of 2: Match Frank’s report":"Step 2 of 2: Diagnose"}</p><p class="story">${esc(c.story)}</p>${CVD_LEGEND(false)}`;
+  if(T.step==="match"){
+    h+=`<p class="help">Set the cone sliders so “Your simulation” looks like “Frank’s report” on every scene. Two conditions can look alike on one scene, so use the scene buttons under Monitor 2 to find a difference.</p>${sliderRows()}
+     <p id="notice" class="notice ${L2.noticeKind}" aria-live="polite">${esc(L2.notice)}</p>
+     <div class="benchbtns"><button class="btn" id="chk" type="button">Check my match</button><button class="btn ghost" id="hnt" type="button">Hint</button></div>`;
+    $("#bench").innerHTML=h; wireCones(null); coneChanged(null);
+    $("#chk").addEventListener("click",testCheck); $("#hnt").addEventListener("click",testHint);
+  } else {
+    h+=`<p class="confirmed">Your simulation matches Frank’s report.</p><h4 class="q">Which condition fits Frank?</h4><div class="opts" id="opts"></div><div class="fb" id="fb" aria-live="polite"></div>`;
+    $("#bench").innerHTML=h;
+    T.opts=shuffle(CVD_CASES.map(x=>x.cond)); const list=$("#opts");
+    T.opts.forEach((t,i)=>{const b=document.createElement("button"); b.type="button"; b.className="opt"; b.innerHTML=`<span class="k">${i+1}</span><span>${t}</span>`; b.addEventListener("click",()=>testDx(i)); list.appendChild(b);});
+  }
+}
+const CONE_SHORT={L:"L cones",M:"M cones",S:"S cones"};
+/* Per-slider guidance for the "Check my match" button.
+   A slider is "close" when it is within 50 points of the target, so students nudging 40% toward a 0% target hear "a bit more". */
+function coneAdvice(){
+  const t=L2.T.cur.cfg, lines=[]; let onTrack=true, anyMoved=false, untouched=0;
+  ["L","M","S"].forEach(k=>{
+    const c=L2.cone[k], tg=t[k], moved=Math.abs(c-1)>=.05, name=CONE_SHORT[k];
+    if(coneOk(c,tg)){ if(moved){anyMoved=true; lines.push("✓ "+name+": this one looks right.");} return; }
+    if(!moved){ untouched++; return; }
+    anyMoved=true; const need=tg-c, dir=need<0?"lower":"higher";
+    if(tg===1){ onTrack=false; lines.push("✗ "+name+": not this one. These cones should stay close to normal, so try putting the slider back.");}
+    else if(Math.abs(need)<=.5) lines.push("→ "+name+": you’re on the right track. Go a bit "+dir+".");
+    else lines.push("→ "+name+": right idea, but it needs to go much "+dir+".");
+  });
+  if(untouched>0&&anyMoved&&onTrack) lines.push("Other sliders still need to change too. Press Hint if you are stuck.");
+  return {lines:lines,onTrack:onTrack,anyMoved:anyMoved};
+}
+function testCheck(){
+  const T=L2.T;
+  if(matches(L2.cone,T.cur.cfg)){ Snd.zap(); L2.notice=""; L2.noticeKind=""; T.step="dx"; renderTestBench(); return; }
+  const a=coneAdvice();
+  if(!a.anyMoved){ Snd.wrong(); sayIn(L2,"Not a match yet. Move a slider first and compare the two sides, or press Hint if you are not sure where to start.",""); return; }
+  if(a.onTrack){ Snd.place(); sayIn(L2,"Not a match yet, but you’re heading the right way.\n"+a.lines.join("\n"),""); }
+  else { Snd.wrong(); testMiss(); T.matchMiss=true; sayIn(L2,"Not a match yet.\n"+a.lines.concat(["Compare the two sides on several scenes. This test will come back later for a clean run."]).join("\n"),"bad"); }
+}
+function testHint(){
+  const t=L2.T.cur.cfg, k=["L","M","S"].find(k=>!coneOk(L2.cone[k],t[k]));
+  L2.hints++;
+  if(!k){ sayIn(L2,"Your settings already match. Press Check my match.",""); return; }
+  const need=t[k]-L2.cone[k];
+  sayIn(L2,"Hint: the "+CONE_NAME[k]+" cones need to be "+(need<0?"lower":"higher")+(Math.abs(need)>.5?" than they are now.":", but only a bit."),"");
+}
+function testDx(i){
+  const T=L2.T; if(T.locked) return; T.locked=true;
+  const c=T.cur, ok=T.opts[i]===c.cond;
+  $$("#opts .opt").forEach((b,j)=>{b.disabled=true; if(T.opts[j]===c.cond){b.classList.add("right");b.firstChild.textContent="✓";} else if(j===i){b.classList.add("wrong");b.firstChild.textContent="✗";} else b.classList.add("dim");});
+  if(ok){ Snd.place();
+    if(T.retry&&T.curMissed&&!T.matchMiss){ T.queue=T.queue.filter(x=>x!==c.id); T.curMissed=false; T.curQueued=false; }
+    T.retry=false;
+    if(!T.curMissed){T.done.add(c.id); if(!T.missed[c.id]) T.first++; L2.testsDone=T.done.size; l2Progress();} }
+  else { Snd.wrong(); testMiss(); }
+  const fb=$("#fb");
+  fb.innerHTML=`<p class="verdict-t">${ok?"Diagnosis confirmed.":"Misdiagnosis."}</p><p>${esc(c.why)}</p>${ok?(T.curMissed?"<p>This test will come back once more for a clean run.</p>":""):"<p>Try this question again right now, or move on and this test will come back later.</p>"}`;
+  const nb=document.createElement("button"); nb.type="button"; nb.className="btn"; nb.textContent=T.queue.length?"Next patient":"Finish level"; nb.addEventListener("click",nextTest);
+  if(!ok){
+    const rb=document.createElement("button"); rb.type="button"; rb.className="btn"; rb.textContent="Try this question again now";
+    rb.addEventListener("click",()=>{T.retry=true; T.locked=false; renderTestBench();});
+    nb.className="btn ghost"; nb.textContent="Move on (this test comes back later)"; fb.appendChild(rb); fb.appendChild(nb); rb.focus();
+  } else { fb.appendChild(nb); nb.focus(); }
+}
+function finishL2(){
+  L2.phase="done"; L2.firstTry+=L2.T.first; $("#phase").textContent="Level complete";
+  const st={wrong:L2.wrong,hints:L2.hints,firstTry:L2.firstTry,total:CVD_CASES.length+L2_QUIZ.length,secs:Math.round((Date.now()-L2.start)/1000)};
+  recordLevel(2,st);
+  L2.cone={L:1,M:1,S:1}; setFilter("cmUser",L2.cone); paintRetina(L2.cone,null);
+  $("#m2").innerHTML=`<div class="cvd"><canvas class="plate" id="plateU" width="280" height="280" role="img" aria-label="A dot pattern hiding the number 74"></canvas></div>`; drawPlate("plateU","74","rg");
+  l2Progress(); celebrate();
+  renderLevelDone(2,"Level 2: The retina",st,{title:"Frank sees in color!",body:(save.name?save.name+", you":"You")+" traced the signal through the retina and diagnosed every color test."},startLevel2);
+}
+
+/* ==================================================================
+   LEVEL 3: OPPONENT PROCESSES AND THE DRESS
+   ================================================================== */
+const BAR_ROWS=[
+ {t:"Red–green cells",l:"Green",r:"Red",pos:"#D9473F",neg:"#4FAE55"},
+ {t:"Blue–yellow cells",l:"Yellow",r:"Blue",pos:"#4A6FE0",neg:"#EFD43C"},
+ {t:"Black–white cells",l:"Black",r:"White",pos:"#F2F2F2",neg:"#1A1A1A"}
+];
+function barsSVG(){
+  return `<svg id="bars" viewBox="0 0 320 200" role="img" aria-label="Output of the three pairs of opponent cells">`+BAR_ROWS.map((r,i)=>{
+    const y=34+i*62;
+    return `<text x="160" y="${y-9}" text-anchor="middle" font-size="12">${r.t}</text><rect x="56" y="${y}" width="208" height="22" fill="#12302A" stroke="#2D4A44"/>`+
+      `<rect id="bar${i}" x="160" y="${y}" width="0" height="22" fill="${r.pos}" stroke="#9FD3C6"/><line x1="160" x2="160" y1="${y-3}" y2="${y+25}" stroke="#9FD3C6"/>`+
+      `<text x="52" y="${y+16}" text-anchor="end" font-size="11">${r.l}</text><text x="268" y="${y+16}" font-size="11">${r.r}</text>`;
+  }).join("")+`</svg>`;
+}
+function paintBars(v){
+  v.forEach((val,i)=>{const b=$("#bar"+i); if(!b) return; const w=Math.abs(val)*104; b.setAttribute("x",val>=0?160:160-w); b.setAttribute("width",w); b.setAttribute("fill",val>=0?BAR_ROWS[i].pos:BAR_ROWS[i].neg);});
+}
+function stageSVG(){
+  return `<svg id="stage" viewBox="0 0 320 220" role="img" aria-label="Afterimage test stimulus with a fixation dot">
+   <rect width="320" height="220" fill="#DADADA"/>
+   <g id="flag" style="display:none"><rect width="320" height="73" fill="#1FAF4A"/><rect y="73" width="320" height="74" fill="#0A0A0A"/><rect y="147" width="320" height="73" fill="#F6E01C"/></g>
+   <g id="comp" opacity="0"><rect width="320" height="73" fill="#E0505F"/><rect y="73" width="320" height="74" fill="#F2F2F2"/><rect y="147" width="320" height="73" fill="#3F5BE0"/></g>
+   <circle cx="160" cy="110" r="6" fill="#fff" stroke="#000" stroke-width="2"/>
+   <text id="stageMsg" x="160" y="212" text-anchor="middle" font-size="13" fill="#1E1426" style="paint-order:stroke;stroke:#DADADA;stroke-width:4px"></text></svg>`;
+}
+function lightSVG(){
+  return `<svg id="light" viewBox="0 0 320 220" role="img" aria-label="The test light and the response of each cone type"><rect id="lsw" x="10" y="10" width="170" height="200" rx="8" fill="#888"/>`+
+   ["L","M","S"].map((k,i)=>`<rect x="${205+i*36}" y="30" width="24" height="150" fill="#12302A" stroke="#2D4A44"/><rect id="cb${k}" x="${205+i*36}" y="180" width="24" height="0" fill="${CONE_FILL[k]}"/><text x="${217+i*36}" y="200" text-anchor="middle" font-size="12">${k}</text>`).join("")+
+   `<text x="250" y="20" text-anchor="middle" font-size="11">Cone signals</text></svg>`;
+}
+const DRESS_A=[124,142,196], DRESS_B=[112,92,56];
+function dressSVG(){
+  const bands=[...Array(11)].map((_,i)=>`<rect class="band${i%2}" x="30" y="${30+i*30}" width="240" height="30"/>`).join("");
+  return `<svg id="dress" viewBox="0 0 300 380" role="img" aria-label="A striped dress whose colors depend on the lighting Frank assumes"><rect width="300" height="380" fill="#202B2B"/>
+   <defs><clipPath id="dclip"><path d="M105 24 L125 24 L150 74 L175 24 L195 24 L214 140 L264 362 L36 362 L86 140 Z"/></clipPath></defs>
+   <g clip-path="url(#dclip)">${bands}</g></svg>`;
+}
+function dressColors(t){
+  const lerp=(a,b,u)=>a+(b-a)*u, bluish=[.75,.85,1.15], warm=[1.2,1,.75];
+  const ill=[0,1,2].map(i=>t<0?lerp(1,bluish[i],-t):lerp(1,warm[i],t)), gain=1.1-.35*t;
+  const f=c=>c.map((v,i)=>Math.max(0,Math.min(255,Math.round(v/ill[i]*gain))));
+  return {a:f(DRESS_A),b:f(DRESS_B)};
+}
+const rgbs=c=>"rgb("+c.join(",")+")";
+const L3_QUIZ=[
+ {story:"Frank stares at a green square for a minute, then looks at a white wall and sees a red square.",q:"Which explanation fits opponent-process theory?",right:"The green side of the red-green pair tired out, so the red side briefly wins",wrong:["His L cones were damaged","His rods took over","The retina stored a red copy of the image"],why:"Opponent cells work in pairs. Staring at green fatigues the green side, so when the stimulus is removed the red side dominates for a moment."},
+ {q:"Frank stares at a bright yellow shape and then looks at a white wall. What color is the afterimage?",right:"Blue",wrong:["Yellow","Green","Red"],why:"Blue and yellow are an opponent pair. Tiring the yellow side leaves the blue side dominant."},
+ {q:"Which of these is NOT one of the opponent pairs?",right:"Red–blue",wrong:["Red–green","Blue–yellow","Black–white"],why:"The three opponent pairs are red–green, blue–yellow, and black–white."},
+ {q:"Which statement best connects trichromatic theory and opponent-process theory?",right:"Cones come in three types (trichromatic), and later cells compare their signals in opposing pairs (opponent process)",wrong:["Trichromatic theory is right and opponent-process theory is wrong","Opponent cells are the photoreceptors, and cones come later","Rods supply the three color channels"],why:"Both are right at different stages: three cone types at the receptors, then opponent comparisons in later cells such as ganglion cells and the thalamus."},
+ {q:"In the explorer, light at about 575 nm looks yellow. What are the opponent cells doing?",right:"The red–green cells are balanced, and the blue–yellow cells signal yellow",wrong:["The red–green cells signal strong green and the blue–yellow cells are silent","The blue–yellow cells signal strong blue","Only the black–white cells respond"],why:"Yellow light excites L and M cones about equally, so the red–green comparison cancels, while S cones barely respond, so the blue–yellow cells signal yellow."},
+ {q:"Why do some people see the dress as white and gold while others see blue and black?",right:"The image is ambiguous, and brains differ in what lighting they assume and then discount",wrong:["Some people’s cones are missing","The dress changes color for different viewers","Different screens show different colors to different people"],why:"The same light reaches everyone’s eyes. The brain estimates the lighting and discounts it (color constancy). With an ambiguous light source, people settle on different assumptions. Researchers are still studying why."},
+ {q:"As you moved the lighting slider, what stayed the same?",right:"The light reaching the retina, which is the raw colors of the stripes",wrong:["The colors Frank perceived","The brain’s assumption about the lighting","The brightness Frank perceived"],why:"Only the assumed lighting changed. The raw stripe colors never changed, and the brain’s correction produced the different perceived colors."}
+];
+const STARE=20, BLANK=14;
+let L3=null, l3Timer=null;
+function clearL3Timer(){ if(l3Timer){clearInterval(l3Timer); l3Timer=null;} if(typeof traceTimer!=="undefined"&&traceTimer){clearInterval(traceTimer); traceTimer=null;} if(typeof animRaf!=="undefined"&&animRaf){cancelAnimationFrame(animRaf); animRaf=null;} if(typeof earToneTimer!=="undefined"&&earToneTimer){clearTimeout(earToneTimer); earToneTimer=null;} if(typeof EARRUN!=="undefined") EARRUN=null; }
+
+function startLevel3(){
+  L3={phase:"after",wrong:0,hints:0,firstTry:0,afterDone:false,goals:{red:false,green:false,blue:false,yellow:false},seen:{wg:false,bb:false},dressDone:false,quizDone:0,wl:550,dt:0,stage:"idle",t0:0,start:Date.now(),notice:"",noticeKind:""};
+  $("#homeBtn").hidden=false; stopStatic(); clearL3Timer();
+  levelShell("Level 3: Opponent processes and the dress","Monitor 1: Test stimulus","Monitor 2: Opponent cells",13);
+  l3After(); window.scrollTo({top:0,behavior:"auto"});
+}
+function l3Progress(){
+  const g=Object.values(L3.goals).filter(Boolean).length;
+  paintMeterN((L3.afterDone?1:0)+g+(L3.dressDone?1:0)+L3.quizDone,13,"Color vision");
+}
+/* ---- part 1: afterimage lab (repeat as often as you like) ---- */
+function l3After(){
+  clearL3Timer(); L3.phase="after"; L3.stage="idle"; $("#phase").textContent="Part 1 of 4: Afterimage lab";
+  $("#m1").innerHTML=stageSVG(); $("#m2").innerHTML=barsSVG(); paintBars([0,0,0]); l3Progress();
+  $("#bench").innerHTML=`<h3 class="bt">Afterimage lab</h3>
+   <p class="help"><b>Stare mode:</b> a green, black, and yellow pattern appears for ${STARE} seconds. Stare at the dot in the middle without moving your eyes. Then the screen goes blank, so keep looking at the dot and blink a few times.</p>
+   <p class="help"><b>Watch mode:</b> the same timeline plays with a simulated afterimage, so you can concentrate on Monitor 2 and watch the opponent cells.</p>
+   <p class="small">Run either mode as many times as you like. A good plan is stare mode once, then watch mode to study the cells.</p>
+   <p id="cd" class="readout" aria-live="polite" style="min-height:1.6em"></p>
+   <div class="benchbtns"><button class="btn" id="startBtn" type="button">Start stare mode</button><button class="btn ghost" id="watchBtn" type="button">Watch mode</button><button class="btn ghost" id="stopBtn" type="button" hidden>Stop and reset</button></div>
+   ${L3.afterDone?'<div class="benchbtns" style="margin-top:14px"><button class="btn" id="toOpp" type="button">Continue to the opponent explorer</button></div>':""}`;
+  $("#startBtn").addEventListener("click",()=>l3Start(false)); $("#watchBtn").addEventListener("click",()=>l3Start(true)); $("#stopBtn").addEventListener("click",l3After);
+  const t=$("#toOpp"); if(t) t.addEventListener("click",l3Opp);
+}
+function l3Start(sim){
+  clearL3Timer(); L3.sim=!!sim; L3.stage="stare"; L3.t0=Date.now();
+  $("#flag").style.display="block"; $("#comp").setAttribute("opacity","0"); $("#stageMsg").textContent=sim?"Simulation: no need to stare":"";
+  const hide=(id,h)=>{const e=$(id); if(e) e.hidden=h;};
+  hide("#startBtn",true); hide("#watchBtn",true); hide("#stopBtn",false); hide("#toOpp",true);
+  l3Timer=setInterval(l3Tick,100);
+}
+function l3Tick(){
+  const t=(Date.now()-L3.t0)/1000;
+  if(L3.stage==="stare"){
+    if(t>=STARE){ L3.stage="blank"; L3.t0=Date.now(); $("#flag").style.display="none"; $("#stageMsg").textContent=L3.sim?"Simulated afterimage, fading":"Keep looking at the dot. Blink a few times."; Snd.zap(); }
+    else { const v=-.85*(1-.7*t/STARE); paintBars([v,v,v]); $("#cd").textContent=(L3.sim?"Watch the cells: ":"Keep staring at the dot: ")+Math.ceil(STARE-t)+" s"; }
+  } else if(L3.stage==="blank"){
+    if(t>=BLANK){ clearL3Timer(); L3.stage="report"; l3Report(L3.sim); }
+    else { const v=.55*Math.exp(-t/8); paintBars([v,v,v]); if(L3.sim) $("#comp").setAttribute("opacity",String(.6*Math.exp(-t/8))); $("#cd").textContent=(L3.sim?"Watch the cells: ":"Keep looking at the dot: ")+Math.ceil(BLANK-t)+" s"; }
+  }
+}
+function l3Report(sim){
+  $("#flag").style.display="none"; $("#comp").setAttribute("opacity",".55"); $("#stageMsg").textContent="Simulated afterimage"; paintBars([.55,.55,.55]);
+  $("#bench").innerHTML=`<h3 class="bt">What happened?</h3>
+   <p>${sim?"That was the simulation. ":"If you saw colors on the blank screen, those were your afterimages. "}The pattern was green, black, and yellow. Their opposites are red, white, and blue, shown on Monitor 1 as a simulation.</p>
+   <p>During the stare, the green, black, and yellow sides of each opponent pair were working hard and began to tire. When the pattern disappeared, the opposite sides were left in charge for a few seconds, so the bars on Monitor 2 swing the other way and then fade back to balance.</p>
+   <div class="benchbtns"><button class="btn ghost" id="againStare" type="button">Run stare mode again</button><button class="btn ghost" id="againWatch" type="button">Run watch mode again</button></div>
+   <div class="benchbtns" style="margin-top:14px"><button class="btn" id="toOpp" type="button">Continue to the opponent explorer</button></div>`;
+  L3.afterDone=true; l3Progress(); Snd.place();
+  $("#againStare").addEventListener("click",()=>{l3After(); l3Start(false);});
+  $("#againWatch").addEventListener("click",()=>{l3After(); l3Start(true);});
+  $("#toOpp").addEventListener("click",l3Opp);
+}
+/* ---- part 2: opponent explorer ---- */
+function oppVals(w){
+  const r=resp(w), clamp=v=>Math.max(-1,Math.min(1,v));
+  return {r:r,rg:clamp(r.L-1.6*r.M),by:clamp(r.S-(r.L+r.M)/2),bw:clamp((r.L+r.M)-.6)};
+}
+function l3Opp(){
+  clearL3Timer(); L3.phase="opp"; $("#phase").textContent="Part 2 of 4: Opponent explorer";
+  $("#m1").innerHTML=lightSVG(); $("#m2").innerHTML=barsSVG();
+  $("#bench").innerHTML=`<h3 class="bt">Opponent explorer</h3>
+   <p class="help">Move the slider to change the wavelength of the light. The cones respond first (Monitor 1). Then opponent cells compare the cone signals (Monitor 2). Red–green cells compare L and M cones, and blue–yellow cells compare S cones with L and M together. This is a simplified model.</p>
+   <p class="small" style="margin:6px 0 4px"><label for="wl3">Wavelength: <output id="wl3Out"></output></label></p>
+   <input id="wl3" type="range" min="400" max="700" step="5" style="width:100%;max-width:440px;accent-color:#B8452F">
+   <p class="help" style="margin-top:12px">Find a light that makes each cell type respond this way:</p>
+   <ul class="checks" id="goals"></ul>
+   <div class="benchbtns"><button class="btn" id="toDress" type="button" disabled>Continue to the dress</button></div>`;
+  $("#wl3").value=String(L3.wl); $("#wl3").addEventListener("input",e=>{L3.wl=+e.target.value; l3Paint();}); $("#toDress").addEventListener("click",l3Dress);
+  l3Paint();
+}
+function l3Paint(){
+  const o=oppVals(L3.wl);
+  paintBars([o.rg,o.by,o.bw]); $("#wl3Out").textContent=L3.wl+" nm"; $("#lsw").setAttribute("fill","rgb("+wl2rgb(L3.wl)+")");
+  ["L","M","S"].forEach(k=>{const h=o.r[k]*150, b=$("#cb"+k); b.setAttribute("y",180-h); b.setAttribute("height",h);});
+  const g=L3.goals, before=Object.values(g).filter(Boolean).length;
+  if(o.rg>=.15) g.red=true; if(o.rg<=-.4) g.green=true; if(o.by>=.3) g.blue=true; if(o.by<=-.5&&Math.abs(o.rg)<=.2) g.yellow=true;
+  const txt={red:"Red–green cells signal red",green:"Red–green cells signal green",blue:"Blue–yellow cells signal blue",yellow:"Yellow: red–green balanced, blue–yellow signals yellow"};
+  $("#goals").innerHTML=Object.keys(txt).map(k=>`<li class="${g[k]?"ok":""}">${g[k]?"✓":"○"} ${txt[k]}</li>`).join("");
+  const after=Object.values(g).filter(Boolean).length; if(after>before) Snd.place();
+  $("#toDress").disabled=after<4; l3Progress();
+}
+/* ---- part 3: the dress ---- */
+function l3Dress(){
+  L3.phase="dress"; $("#phase").textContent="Part 3 of 4: The dress"; L3.dt=0;
+  $("#m1").innerHTML=dressSVG();
+  $("#m2").innerHTML=`<p class="mini">Light reaching the retina (never changes)</p><div class="sws"><span class="swb" id="rawA"></span><span class="swb" id="rawB"></span></div>
+   <p class="mini" style="margin-top:12px">What Frank perceives</p><div class="sws"><span class="swb" id="perA"></span><span class="swb" id="perB"></span></div>`;
+  $("#bench").innerHTML=`<h3 class="bt">The dress</h3>
+   <p class="help">This striped dress is drawn to be ambiguous, inspired by the famous photo. The colors reaching Frank’s retina stay fixed. The slider changes what Frank’s brain assumes about the lighting. Find both ways of seeing it.</p>
+   <div class="srow" style="grid-template-columns:1fr"><label for="dt">Frank assumes the light is…</label><input id="dt" type="range" min="-100" max="100" step="5" value="0" style="width:100%"></div>
+   <div class="ends"><span>Bluish shade</span><span>Warm indoor light</span></div>
+   <ul class="checks" id="seen"></ul>
+   <p class="small">The raw colors on Monitor 2 never change. Frank’s brain estimates the lighting and subtracts it (color constancy). Because the dress photo is so ambiguous, brains can settle on different assumptions. Researchers are still studying why people differ, and one idea involves people’s everyday experience of daylight versus artificial light.</p>
+   <div class="benchbtns"><button class="btn" id="toQuiz3" type="button" disabled>Continue to the final checkpoint</button></div>`;
+  $("#dt").addEventListener("input",e=>{L3.dt=e.target.value/100; l3PaintDress();}); $("#toQuiz3").addEventListener("click",l3Quiz);
+  l3PaintDress();
+}
+function l3PaintDress(){
+  const c=dressColors(L3.dt);
+  $$(".band0").forEach(e=>e.setAttribute("fill",rgbs(c.a))); $$(".band1").forEach(e=>e.setAttribute("fill",rgbs(c.b)));
+  $("#rawA").style.background=rgbs(DRESS_A); $("#rawB").style.background=rgbs(DRESS_B); $("#perA").style.background=rgbs(c.a); $("#perB").style.background=rgbs(c.b);
+  const before=L3.seen.wg+L3.seen.bb; if(L3.dt<=-.7) L3.seen.wg=true; if(L3.dt>=.7) L3.seen.bb=true;
+  $("#seen").innerHTML=`<li class="${L3.seen.wg?"ok":""}">${L3.seen.wg?"✓":"○"} The white-and-gold reading (assume bluish shade)</li><li class="${L3.seen.bb?"ok":""}">${L3.seen.bb?"✓":"○"} The blue-and-black reading (assume warm indoor light)</li>`;
+  const both=L3.seen.wg&&L3.seen.bb; if(both&&!L3.dressDone){L3.dressDone=true; Snd.zap(); l3Progress();} else if(L3.seen.wg+L3.seen.bb>before) Snd.place();
+  $("#toQuiz3").disabled=!both;
+}
+/* ---- part 4: checkpoint ---- */
+function l3Quiz(){
+  L3.phase="quiz"; $("#phase").textContent="Part 4 of 4: Final checkpoint";
+  $("#m1").innerHTML=`<svg viewBox="0 0 320 220" role="img" aria-label="The three opponent pairs of colors"><rect width="320" height="220" fill="#12302A"/>`+
+    [["#D9473F","#4FAE55"],["#4A6FE0","#EFD43C"],["#F2F2F2","#1A1A1A"]].map((p,i)=>{const y=40+i*66; return `<circle cx="90" cy="${y}" r="22" fill="${p[0]}" stroke="#9FD3C6" stroke-width="2"/><circle cx="230" cy="${y}" r="22" fill="${p[1]}" stroke="#9FD3C6" stroke-width="2"/><path d="M118 ${y} H202 M126 ${y-6} L118 ${y} L126 ${y+6} M194 ${y-6} L202 ${y} L194 ${y+6}" stroke="#9FD3C6" stroke-width="2" fill="none"/>`;}).join("")+`</svg>`;
+  paintBars([0,0,0]);
+  makeQuiz({title:"Final checkpoint",items:L3_QUIZ,onWrong:()=>{L3.wrong++;},onProgress:n=>{L3.quizDone=n; l3Progress();},onDone:s=>{L3.firstTry=s.firstTry; finishL3();}}).start();
+}
+function finishL3(){
+  L3.phase="done"; $("#phase").textContent="Level complete";
+  const st={wrong:L3.wrong,hints:L3.hints,firstTry:L3.firstTry,total:L3_QUIZ.length,secs:Math.round((Date.now()-L3.start)/1000)};
+  recordLevel(3,st);
+  l3Progress(); celebrate();
+  renderLevelDone(3,"Level 3: Opponent processes and the dress",st,{title:"Frank sees in full color!",body:(save.name?save.name+", you":"You")+" explored afterimages, opponent cells, and the dress."},startLevel3);
+}
+
+/* ==================================================================
+   HEARING: sound engine and shared helpers (levels 4 and 5)
+   Everything is synthesized in the browser. Loudness is capped and compressed.
+   ================================================================== */
+const FQ=[250,500,1000,2000,4000,8000], BASE=5, W6=[.05,.1,.3,.6,.9,1];
+const Hearing={
+  cur:null,
+  stop(){
+    if(this.cur){ try{const c=Snd.ctx; this.cur.out.gain.cancelScheduledValues(c.currentTime); this.cur.out.gain.setTargetAtTime(0,c.currentTime,.03);}catch(e){} this.cur=null; }
+  },
+  chain(ctx,loss,robotic){
+    const input=ctx.createGain(); let prev=input;
+    const add=(type,f,att)=>{ if(att<=.4) return; const b=ctx.createBiquadFilter(); b.type=type; b.frequency.value=f; b.Q.value=.9; b.gain.value=-att; prev.connect(b); prev=b; };
+    const att=i=>Math.min(36,Math.max(0,loss[i]-BASE)*.6);
+    add("lowshelf",350,att(0)); add("peaking",500,att(1)); add("peaking",1000,att(2)); add("peaking",2000,att(3)); add("peaking",4000,att(4)); add("highshelf",6000,att(5));
+    if(robotic){
+      const bp=ctx.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=1200; bp.Q.value=.5; prev.connect(bp); prev=bp;
+      const am=ctx.createGain(); am.gain.value=.55; const lfo=ctx.createOscillator(); lfo.frequency.value=70; const lg=ctx.createGain(); lg.gain.value=.45;
+      lfo.connect(lg); lg.connect(am.gain); lfo.start(); prev.connect(am); prev=am;
+    }
+    const comp=ctx.createDynamicsCompressor(), out=ctx.createGain(); out.gain.value=.5; prev.connect(comp); comp.connect(out); out.connect(ctx.destination);
+    return {input:input,out:out};
+  },
+  note(ctx,dst,t,f,type,v,dur){
+    const o=ctx.createOscillator(), g=ctx.createGain(); o.type=type; o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(v,t+.02); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(dst); o.start(t); o.stop(t+dur+.03);
+  },
+  melody(ctx,dst,t0){
+    [[293.7,0],[349.2,.35],[440,.7],[587.3,1.05],[440,1.4],[349.2,1.75],[880,2.1],[1174.7,2.45],[1568,2.8],[2093,3.15]].forEach(n=>{
+      this.note(ctx,dst,t0+n[1],n[0],"triangle",.3,.34); this.note(ctx,dst,t0+n[1],n[0]*3,"sine",.14,.3);
+    }); return 3.6;
+  },
+  ambience(ctx,dst,t0){
+    const n=Math.floor(ctx.sampleRate*1.8), buf=ctx.createBuffer(1,n,ctx.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/n,1.5);
+    const s=ctx.createBufferSource(); s.buffer=buf; const lp=ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=220; const g=ctx.createGain(); g.gain.value=.9;
+    s.connect(lp); lp.connect(g); g.connect(dst); s.start(t0);
+    [[.5,7000],[1.3,6200],[2.1,5200]].forEach(c=>{
+      const o=ctx.createOscillator(), og=ctx.createGain(); o.type="sine"; o.frequency.setValueAtTime(c[1],t0+c[0]); o.frequency.exponentialRampToValueAtTime(c[1]*.65,t0+c[0]+.28);
+      og.gain.setValueAtTime(0.0001,t0+c[0]); og.gain.exponentialRampToValueAtTime(.22,t0+c[0]+.03); og.gain.exponentialRampToValueAtTime(0.0001,t0+c[0]+.3);
+      o.connect(og); og.connect(dst); o.start(t0+c[0]); o.stop(t0+c[0]+.35);
+    });
+    [[.9,3400],[1.7,3000]].forEach(c=>this.note(ctx,dst,t0+c[0],c[1],"sine",.14,.22));
+    return 3;
+  },
+  play(loss,opts){
+    const ctx=Snd.ensure(); if(!ctx) return 0;
+    this.stop(); const ch=this.chain(ctx,loss,!!(opts&&opts.robotic)), t0=ctx.currentTime+.05;
+    const dur=(opts&&opts.source==="ambience")?this.ambience(ctx,ch.input,t0):this.melody(ctx,ch.input,t0);
+    this.cur={out:ch.out}; const me=ch.out; setTimeout(()=>{ if(this.cur&&this.cur.out===me) this.cur=null; },(dur+.4)*1000);
+    return dur;
+  },
+  tone(freq,eff,vol,dur){
+    const ctx=Snd.ensure(); if(!ctx||eff.gain<=0) return 0;
+    dur=Math.max(.6,dur||1.2);
+    this.stop(); const t=ctx.currentTime+.03, o=ctx.createOscillator(), lp=ctx.createBiquadFilter(), g=ctx.createGain(), comp=ctx.createDynamicsCompressor();
+    o.type="sine"; o.frequency.value=freq; lp.type="lowpass"; lp.frequency.value=eff.lp;
+    const peak=Math.max(.0002,Math.min(.12,.12*vol*eff.gain));
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(peak,t+.05); g.gain.setValueAtTime(peak,t+dur-.25); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(lp); lp.connect(g); g.connect(comp); comp.connect(ctx.destination); o.start(t); o.stop(t+dur+.05);
+    return dur;
+  }
+};
+function heardCaption(loss,robotic){
+  const o=loss.map(v=>Math.max(0,v-BASE)), lo=(o[0]+o[1]+o[2])/3, hi=(o[4]+o[5])/2, avg=o.reduce((a,b)=>a+b,0)/6;
+  if(robotic) return "Frank hears a buzzy, robotic version of the sounds. It is understandable, but it is not like natural hearing.";
+  if(avg<=10) return "Frank hears clearly: the thunder, the melody, and the high creaks.";
+  if(hi-lo>=20) return "Low sounds like the thunder come through, but high pitches, like the creaks and the top notes of the melody, are faint or missing.";
+  if(avg<=40) return "Everything sounds quieter, at every pitch.";
+  return "Everything is very faint.";
+}
+function audiogramSVG(air,bone,after){
+  const X=i=>52+i*50, Y=db=>18+db*1.5;
+  let s=`<svg id="aud" viewBox="0 0 320 232" role="img" aria-label="Audiogram showing hearing loss in decibels at six pitches"><rect width="320" height="232" fill="#0C1A18" rx="6"/>`;
+  s+=`<rect x="40" y="${Y(0)}" width="262" height="${Y(25)-Y(0)}" fill="rgba(143,205,180,.14)"/>`;
+  [0,20,40,60,80,100].forEach(db=>{s+=`<line x1="40" x2="302" y1="${Y(db)}" y2="${Y(db)}" stroke="#2D4A44"/><text x="34" y="${Y(db)+4}" text-anchor="end" font-size="10">${db}</text>`;});
+  ["250","500","1k","2k","4k","8k"].forEach((t,i)=>{s+=`<text x="${X(i)}" y="204" text-anchor="middle" font-size="10">${t}</text>`;});
+  s+=`<text x="171" y="222" text-anchor="middle" font-size="10">Pitch in Hz. Lower on the chart means worse hearing.</text>`;
+  const line=(a,c,dash)=>`<polyline points="${a.map((v,i)=>X(i)+","+Y(v)).join(" ")}" fill="none" stroke="${c}" stroke-width="2.5"${dash?' stroke-dasharray="5 4"':""}/>`;
+  if(bone) s+=line(bone,"#6F9BFF",true)+bone.map((v,i)=>`<path d="M${X(i)+5} ${Y(v)-5} L${X(i)-3} ${Y(v)} L${X(i)+5} ${Y(v)+5}" stroke="#6F9BFF" stroke-width="2" fill="none"/>`).join("");
+  s+=line(air,"#FF7A6B",false)+air.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="4.5" fill="none" stroke="#FF7A6B" stroke-width="2"/>`).join("");
+  if(after) s+=line(after,"#9ED9A7",true)+after.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="#9ED9A7"/>`).join("");
+  return s+`</svg><ul class="legend"><li><span class="lg" style="background:#FF7A6B"></span>Air: sound through the ear canal</li><li><span class="lg" style="background:#6F9BFF"></span>Bone: vibration through the skull</li>${after?'<li><span class="lg" style="background:#9ED9A7"></span>After treatment or louder volume</li>':""}</ul>`;
+}
+
+/* ==================================================================
+   THE EAR DIAGRAM (levels 4 and 5)
+   ================================================================== */
+const EAR={cx:560,cy:262,R0:84,R1:20,turns:2.3,th0:Math.PI};
+function spiralPt(t,dr){const th=EAR.th0+t*EAR.turns*2*Math.PI, r=EAR.R0-(EAR.R0-EAR.R1)*t+(dr||0); return [EAR.cx+r*Math.cos(th),EAR.cy+r*Math.sin(th)];}
+function spiralPath(t0,t1,dr){let d="", n=Math.max(2,Math.ceil((t1-t0)*140)); for(let i=0;i<=n;i++){const p=spiralPt(t0+(t1-t0)*i/n,dr); d+=(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1);} return d;}
+const PINNA_D="M118 204 C70 120 8 168 18 240 C28 316 82 350 118 296 L118 276 C92 280 80 255 88 236 C96 214 104 214 118 224 Z";
+const DRUM_D="M246 212 Q272 250 246 288", HAMMER_D="M262 250 L314 211", ANVIL_D="M332 214 L350 236 L368 266", STIRRUP_D="M376 268 Q398 240 430 248";
+const EAR_NERVE_C={p0:[566,268],c1:[620,300],c2:[700,346],p3:[826,350]}, EAR_NERVE_D="M566 268 C620 300 700 346 826 350";
+const CANAL_RINGS=[[500,108,44,22,-18],[566,84,22,44,0],[624,122,44,22,24]];
+const ghostB=(d,w)=>`<path d="${d}" fill="none" stroke="rgba(245,165,36,.2)" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" class="sl nofill" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+const boneP=(d,w)=>`<path d="${d}" fill="none" stroke="#E8DCC0" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const hairCells=()=>[0,1,2,3,4,5,6].map(i=>{const x=696+i*16; return `<g data-hcg="${i}"><rect data-hc="${i}" x="${x}" y="84" width="7" height="20" rx="3" fill="#F29BC1"/><path d="M${x+1} 84 l-2 -8 M${x+3.5} 84 v-9 M${x+6} 84 l2 -8" stroke="#F8C4DA" stroke-width="1.4" fill="none"/></g>`;}).join("");
+const EAR_PARTS=[
+ {id:"pinna",name:"Pinna",bbox:[8,112,120,240],
+  clue:"The visible, curved flap of the outer ear. It collects sound waves.",
+  fact:"Pinna in place. It collects sound waves and funnels them toward the ear canal.",
+  draw:p=>p?`<path d="${PINNA_D}" fill="#7DA364" stroke="#4F6B3C" stroke-width="3"/><path d="M98 232 C92 250 100 262 112 262" stroke="#4F6B3C" stroke-width="2.5" fill="none"/>`:`<path d="${PINNA_D}" class="sl" stroke-width="2"/>`,
+  hit:()=>`<path d="${PINNA_D}" fill="transparent"/>`,
+  anchors:()=>[[62,250]], chain:"Pinna: collects sound",
+  label:()=>({t:"Pinna",x:10,y:112,x1:46,y1:120,x2:52,y2:178})},
+ {id:"canal",name:"Ear canal",bbox:[112,214,146,72],
+  clue:"A short tube that carries sound from the outer ear to the eardrum.",
+  fact:"Ear canal in place. It channels sound waves to the eardrum.",
+  draw:p=>p?`<rect x="118" y="224" width="132" height="52" fill="#3A2A22"/><path d="M118 224 H250 M118 276 H250" stroke="#C9A98B" stroke-width="6"/>`:`<rect x="118" y="224" width="132" height="52" class="sl" stroke-width="2"/>`,
+  hit:()=>`<rect x="118" y="214" width="132" height="72" fill="transparent"/>`,
+  anchors:()=>[[184,250]], chain:"Ear canal: channels sound",
+  label:()=>({t:"Ear canal",x:128,y:28,x1:170,y1:36,x2:184,y2:226})},
+ {id:"eardrum",name:"Eardrum",bbox:[230,196,60,108],
+  clue:"A thin membrane stretched across the end of the canal. Sound makes it vibrate.",
+  fact:"Eardrum in place. Sound waves make it vibrate, turning moving air into moving tissue.",
+  draw:p=>p?`<path d="${DRUM_D}" fill="none" stroke="#E8A0A8" stroke-width="7" stroke-linecap="round"/>`:ghostB(DRUM_D,22),
+  hit:()=>`<path d="${DRUM_D}" fill="none" stroke="transparent" stroke-width="44"/>`,
+  anchors:()=>[[258,250]], chain:"Eardrum: vibrates",
+  label:()=>({t:"Eardrum",x:176,y:384,x1:236,y1:378,x2:250,y2:292})},
+ {id:"hammer",name:"Hammer",bbox:[248,190,84,78],
+  clue:"The first of three tiny bones. It is attached to the eardrum.",
+  fact:"Hammer in place. It is attached to the eardrum and passes the vibration to the anvil.",
+  draw:p=>p?boneP(HAMMER_D,9)+`<circle cx="322" cy="205" r="10" fill="#E8DCC0" stroke="#8A7B5A" stroke-width="2"/>`:ghostB(HAMMER_D,18),
+  hit:()=>`<path d="${HAMMER_D}" fill="none" stroke="transparent" stroke-width="40"/>`,
+  anchors:()=>[[290,230]], chain:"Hammer: passes it on",
+  label:()=>({t:"Hammer",x:252,y:168,x1:290,y1:176,x2:292,y2:226})},
+ {id:"anvil",name:"Anvil",bbox:[312,194,76,90],
+  clue:"The middle bone. It links the hammer to the stirrup.",
+  fact:"Anvil in place. It connects the hammer to the stirrup and keeps the vibration moving.",
+  draw:p=>p?boneP(ANVIL_D,10)+boneP("M338 220 L322 240",7):ghostB(ANVIL_D,20),
+  hit:()=>`<path d="${ANVIL_D}" fill="none" stroke="transparent" stroke-width="40"/>`,
+  anchors:()=>[[350,240]], chain:"Anvil: passes it on",
+  label:()=>({t:"Anvil",x:336,y:122,x1:352,y1:130,x2:350,y2:234})},
+ {id:"stirrup",name:"Stirrup",bbox:[360,224,92,56],
+  clue:"The smallest bone in the body. It presses on the entrance to the inner ear.",
+  fact:"Stirrup in place. It is the smallest bone in the body, and it pushes on the oval window.",
+  draw:p=>p?boneP(STIRRUP_D,6)+`<rect x="430" y="236" width="10" height="26" rx="3" fill="#E8DCC0" stroke="#8A7B5A" stroke-width="2"/>`:ghostB(STIRRUP_D,16),
+  hit:()=>`<path d="${STIRRUP_D}" fill="none" stroke="transparent" stroke-width="36"/>`,
+  anchors:()=>[[402,254]], chain:"Stirrup: pushes the window",
+  label:()=>({t:"Stirrup",x:392,y:150,x1:420,y1:158,x2:404,y2:246})},
+ {id:"oval",name:"Oval window",bbox:[430,226,34,48],
+  clue:"A small membrane where the middle ear meets the cochlea. The stirrup presses on it.",
+  fact:"Oval window in place. The stirrup pushes on it, which sends waves into the cochlea’s fluid.",
+  draw:p=>p?`<ellipse cx="446" cy="250" rx="7" ry="19" fill="#E8A0A8" stroke="#8C5A62" stroke-width="2"/>`:`<ellipse cx="446" cy="250" rx="7" ry="19" class="sl" stroke-width="2"/>`,
+  hit:()=>`<ellipse cx="446" cy="250" rx="22" ry="34" fill="transparent"/>`,
+  anchors:()=>[[446,250]], chain:"Oval window: enters the fluid",
+  label:()=>({t:"Oval window",x:330,y:362,x1:402,y1:356,x2:446,y2:270})},
+ {id:"cochlea",name:"Cochlea",bbox:[458,160,204,208],
+  clue:"A snail-shaped tube filled with fluid. Waves in the fluid move along it.",
+  fact:"Cochlea in place. Waves travel through its fluid, and different pitches peak at different places along it.",
+  draw:p=>{const d=spiralPath(0,1,0); return p
+    ? `<path d="${d}" fill="none" stroke="#D8CDB8" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#2E5A57" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/><path d="M451 252 L476 262" stroke="#D8CDB8" stroke-width="16" stroke-linecap="round"/>`
+    : ghostB(d,30);},
+  hit:()=>`<circle cx="560" cy="262" r="92" fill="transparent"/>`,
+  anchors:()=>[.12,.4,.7].map(t=>spiralPt(t,0)), chain:"Cochlea: fluid waves",
+  label:()=>({t:"Cochlea",x:590,y:396,x1:620,y1:388,x2:602,y2:352})},
+ {id:"hair",name:"Hair cells",bbox:[684,60,124,64],
+  clue:"Tiny cells with hair-like tips inside the cochlea. They bend and fire when the fluid moves.",
+  fact:"Hair cells in place. They bend with the fluid waves and fire neural signals (transduction).",
+  draw:p=>p?`<path d="M688 102 Q746 118 804 102" stroke="#8C5A62" stroke-width="3" fill="none"/>${hairCells()}`:`<rect x="688" y="70" width="118" height="40" rx="10" class="sl" stroke-width="2"/>`,
+  hit:()=>`<rect x="680" y="60" width="130" height="64" fill="transparent"/>`,
+  anchors:()=>[[746,92]], chain:"Hair cells: fire signals",
+  label:()=>({t:"Hair cells",x:700,y:182,x1:746,y1:172,x2:746,y2:112})},
+ {id:"canals",name:"Semicircular canals",bbox:[450,52,226,130],
+  clue:"Three fluid-filled loops. They sense head movement for balance, not hearing.",
+  fact:"Semicircular canals in place. They sense head movement for balance. Frank can hear without them, but he would be dizzy.",
+  draw:p=>p?CANAL_RINGS.map(r=>`<ellipse cx="${r[0]}" cy="${r[1]}" rx="${r[2]}" ry="${r[3]}" transform="rotate(${r[4]} ${r[0]} ${r[1]})" fill="none" stroke="#C9B8D9" stroke-width="9"/>`).join("")+`<circle cx="548" cy="166" r="15" fill="#C9B8D9" stroke="#6B5A7A" stroke-width="2"/>`
+    : CANAL_RINGS.map(r=>`<ellipse cx="${r[0]}" cy="${r[1]}" rx="${r[2]}" ry="${r[3]}" transform="rotate(${r[4]} ${r[0]} ${r[1]})" fill="none" stroke="rgba(245,165,36,.2)" stroke-width="16"/><ellipse cx="${r[0]}" cy="${r[1]}" rx="${r[2]}" ry="${r[3]}" transform="rotate(${r[4]} ${r[0]} ${r[1]})" class="sl nofill" stroke-width="2"/>`).join(""),
+  hit:()=>CANAL_RINGS.map(r=>`<ellipse cx="${r[0]}" cy="${r[1]}" rx="${r[2]}" ry="${r[3]}" transform="rotate(${r[4]} ${r[0]} ${r[1]})" fill="none" stroke="transparent" stroke-width="34"/>`).join(""),
+  anchors:()=>[[500,108],[566,84],[624,122]], chain:"Semicircular canals: balance only",
+  label:()=>({t:"Semicircular canals",x:466,y:26,x1:520,y1:34,x2:540,y2:64})},
+ {id:"nerve",name:"Auditory nerve",bbox:[552,250,282,112],
+  clue:"A cable of nerve fibers that carries the signal from the cochlea to the brain.",
+  fact:"Auditory nerve in place. It carries the signal to the brain.",
+  draw:p=>p?`<path d="${EAR_NERVE_D}" fill="none" stroke="#4E3B1A" stroke-width="28" stroke-linecap="round"/><path d="${EAR_NERVE_D}" fill="none" stroke="#E8C98A" stroke-width="20" stroke-linecap="round"/>`:ghostB(EAR_NERVE_D,26),
+  hit:()=>`<path d="${EAR_NERVE_D}" fill="none" stroke="transparent" stroke-width="44"/>`,
+  anchors:()=>[.3,.5,.75,.92].map(t=>bez(EAR_NERVE_C,t)), chain:"Auditory nerve: to the brain",
+  label:()=>{const a=bez(EAR_NERVE_C,.62); return {t:"Auditory nerve",x:a[0]-56,y:a[1]-56,x1:a[0],y1:a[1]-46,x2:a[0],y2:a[1]-14};}}
+];
+const EAR_PART=Object.fromEntries(EAR_PARTS.map(p=>[p.id,p]));
+const EAR_HEAR=["pinna","canal","eardrum","hammer","anvil","stirrup","oval","cochlea","hair","nerve"];
+function earIcon(p){const b=p.bbox; return `<svg class="pico" viewBox="${b.join(" ")}" aria-hidden="true"><rect x="${b[0]}" y="${b[1]}" width="${b[2]}" height="${b[3]}" fill="#17302F"/>${p.draw(true)}</svg>`;}
+const pitchT=f=>Math.max(0,Math.min(1,1-Math.log(f/200)/Math.log(20)));
+function earOverlay(m){
+  if(!m) return "";
+  let s="";
+  if(m.wax>0) s+=`<ellipse cx="206" cy="250" rx="${(14+22*m.wax).toFixed(0)}" ry="${(10+14*m.wax).toFixed(0)}" fill="#8B5A2B" stroke="#5A3A1A" stroke-width="3" opacity="${(.45+.5*m.wax).toFixed(2)}"/>`;
+  if(m.stiff>0) s+=`<path d="${HAMMER_D} ${ANVIL_D} ${STIRRUP_D}" fill="none" stroke="#D9473F" stroke-width="${(3+5*m.stiff).toFixed(1)}" stroke-linecap="round" stroke-dasharray="3 5" opacity="${(.35+.5*m.stiff).toFixed(2)}"/>`;
+  if(m.hole) s+=`<circle cx="258" cy="248" r="10" fill="#17302F" stroke="#D9473F" stroke-width="3"/>`;
+  if(m.hairW){
+    m.hairW.forEach((w,i)=>{ if(w>0) s+=`<rect x="${696+i*16}" y="84" width="7" height="20" rx="3" fill="#6C7F78" opacity="${Math.min(1,w*1.3).toFixed(2)}"/>`; });
+    if(m.hairFrac>0) s+=`<path d="${spiralPath(0,m.hairFrac,0)}" fill="none" stroke="rgba(108,127,120,.7)" stroke-width="18" stroke-linecap="round"/>`;
+  }
+  if(m.aid) s+=`<path d="M40 160 Q8 196 34 236" fill="none" stroke="#8E9AA0" stroke-width="8" stroke-linecap="round"/><rect x="26" y="232" width="22" height="30" rx="8" fill="#8E9AA0" stroke="#1E1426" stroke-width="2"/>`;
+  if(m.implant) s+=`<path d="${spiralPath(0,.75,0)}" fill="none" stroke="#F5C242" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 6"/>`;
+  return `<g class="ovl" pointer-events="none">${s}</g>`;
+}
+/* o: {placed:Set} for assembling, or {all:true, model:{...}} for the clinic */
+function drawEar(o){
+  const all=!!o.all, pl=o.placed||new Set(), t=pitchT(o.pitch||600);
+  let s=`<rect x="118" y="40" width="640" height="360" rx="40" fill="#17302F" stroke="#DDE1D6" stroke-width="8"/><rect x="252" y="188" width="196" height="126" rx="22" fill="#1F4440"/>
+   <path d="M610 214 L690 130" stroke="#F5A524" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
+   <circle cx="746" cy="92" r="62" fill="#12302A" stroke="#F5A524" stroke-width="2" stroke-dasharray="4 4"/>`;
+  let labels="";
+  ["nerve","canals","cochlea","hair","oval","stirrup","anvil","hammer","eardrum","canal","pinna"].forEach(id=>{
+    const p=EAR_PART[id];
+    if(all||pl.has(id)){ s+=`<g class="pl" data-part="${id}">${p.draw(true)}</g>`; if(!all) labels+=labelSVG(p.label()); }
+    else s+=`<g class="slot" data-slot="${id}" tabindex="0" role="button" aria-label="Empty place in the ear. Select it to put the chosen part here.">${p.hit()}${p.draw(false)}</g>`;
+  });
+  s+=earOverlay(o.model);
+  if((all||pl.has("cochlea"))&&!o.nodot){ const pt=spiralPt(t,0); s+=`<circle id="pdot" cx="${pt[0].toFixed(1)}" cy="${pt[1].toFixed(1)}" r="7" fill="#fff" stroke="#F5A524" stroke-width="3" pointer-events="none"/>`; }
+  s+=`<text x="832" y="322" text-anchor="end" font-size="14" class="tobrain">To the brain</text>`;
+  return s+labels+`<g id="trace" pointer-events="none"></g><g id="anim" pointer-events="none"></g>`;
+}
+function setPitchDot(f){
+  const d=$("#pdot"); if(!d) return;
+  const t=pitchT(f), p=spiralPt(t,0); d.setAttribute("cx",p[0].toFixed(1)); d.setAttribute("cy",p[1].toFixed(1));
+  const idx=Math.round(t*6); $$("#ear [data-hc]").forEach(c=>c.setAttribute("fill",+c.dataset.hc===idx?"#fff":"#F29BC1"));
+}
+const EAR_TABLE_SVG=TABLE_SVG
+  .replace('aria-label="Frank strapped to a tilted lab table, his left eye highlighted"','aria-label="Frank strapped to a tilted lab table, his left ear highlighted"')
+  .replace('points="196,102 300,12 300,196 196,112"','points="220,116 300,12 300,196 220,134"')
+  .replace('<ellipse cx="178" cy="102" rx="22" ry="17"','<ellipse cx="212" cy="122" rx="14" ry="22"');
+
+/* ==================================================================
+   LEVEL 4: THE EAR
+   ================================================================== */
+const STAGES=[["pinna","The pinna collects the sound waves."],["canal","The ear canal channels them to the eardrum."],["eardrum","The eardrum vibrates."],["hammer","The hammer passes the vibration on."],["anvil","The anvil passes it to the stirrup."],["stirrup","The stirrup pushes on the oval window."],["oval","The oval window sends waves into the cochlea’s fluid."],["cochlea","In the cochlea, the pitch decides which place along the membrane moves most. Watch the white dot."],["hair","Hair cells bend and fire: transduction."],["nerve","The auditory nerve carries the signal to the brain."]];
+function traceResult(pl){
+  const reached=[]; let stop=null, weakPinna=false;
+  for(const s of STAGES){ const id=s[0]; if(pl.has(id)) reached.push(id); else if(id==="pinna") weakPinna=true; else {stop=id; break;} }
+  return {reached:reached,stop:stop,weakPinna:weakPinna};
+}
+function earEffect(pl){
+  const has=id=>pl.has(id);
+  if(!has("cochlea")||!has("hair")||!has("nerve")) return {gain:0,lp:20000};
+  let g=1, lp=20000;
+  if(!has("pinna")) g*=.6;
+  if(!has("canal")||!has("eardrum")||!has("hammer")||!has("anvil")||!has("stirrup")||!has("oval")){ g*=.15; lp=550; }
+  return {gain:g,lp:lp};
+}
+function earVerdict(pl){
+  const tr=traceResult(pl), e=earEffect(pl);
+  if(!pl.has("cochlea")||!pl.has("hair")||!pl.has("nerve")){
+    const miss=["cochlea","hair","nerve"].find(id=>!pl.has(id));
+    return "Frank hears nothing. The signal can’t be turned into a message for the brain without the "+EAR_PART[miss].name.toLowerCase()+".";
+  }
+  if(tr.stop) return "Most of the sound is lost at the "+EAR_PART[tr.stop].name.toLowerCase()+". A little still reaches the cochlea as vibration through the skull bone, so Frank hears a faint, muffled sound.";
+  if(tr.weakPinna) return "Frank hears the sound, but quieter, because there is no pinna to collect it.";
+  return pl.size>=EAR_PARTS.length?"Frank hears the sound clearly!":"The path is complete. Frank hears the sound clearly.";
+}
+let L4=null, traceTimer=null;
+const pitchHz=()=>Math.round(200*Math.pow(20,(L4?L4.pitchV:30)/100));
+function startLevel4(){
+  L4={phase:"assemble",placed:new Set(),sel:null,wrong:0,hints:0,firstTry:0,notice:"",noticeKind:"",start:Date.now(),pitchV:30,vol:.6,quizDone:0,amp:0,trayOrder:shuffleDiff(EAR_PARTS.map(p=>p.id))};
+  $("#homeBtn").hidden=false; stopStatic(); clearL3Timer(); Hearing.stop();
+  levelShell("Level 4: The ear","Monitor 1: Frank’s left ear, cross-section","Monitor 2: What Frank hears",EAR_PARTS.length+6,EAR_TABLE_SVG);
+  $("#m1").innerHTML=`<svg id="ear" viewBox="0 0 840 420" role="group" aria-label="Cross-section of Frank’s left ear. Sound enters from the left."></svg>
+   <p class="tipnote" id="dotnote"><span class="dotkey" aria-hidden="true"></span><b>Watch the white dot on the cochlea.</b> It shows where along the cochlea the pitch you choose is strongest. Slide the pitch from low to high in the Sound lab and see where the dot goes.</p>`;
+  $("#m2").innerHTML=`<svg id="wave" viewBox="0 0 320 96" role="img" aria-label="A wave showing how strong the sound is when it reaches Frank"></svg><ul class="chain" id="chain4"></ul><p class="verdict" id="verdict4" aria-live="polite"></p>`;
+  const ear=$("#ear");
+  ear.addEventListener("click",e=>{const s=e.target.closest(".slot"); if(s&&L4&&L4.phase==="assemble") placeEar(L4.sel,s.dataset.slot);});
+  ear.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ") return; const s=e.target.closest&&e.target.closest(".slot"); if(s&&L4&&L4.phase==="assemble"){e.preventDefault(); placeEar(L4.sel,s.dataset.slot);}});
+  l4Refresh(); window.scrollTo({top:0,behavior:"auto"});
+}
+function paintWave(amp){
+  const f=pitchHz(), cyc=2+Math.log2(f/200)*1.4; let d="";
+  for(let x=0;x<=300;x+=3) d+=(x?"L":"M")+(10+x)+" "+(48-amp*38*Math.sin(2*Math.PI*cyc*x/300)).toFixed(1);
+  $("#wave").innerHTML=`<rect width="320" height="96" fill="#0C1A18" rx="6"/><line x1="10" x2="310" y1="48" y2="48" stroke="#2D4A44"/><path d="${d}" fill="none" stroke="#9ED9A7" stroke-width="2.5"/><text x="10" y="90" font-size="10">Strength of the sound reaching Frank (${f} Hz)</text>`;
+}
+function l4Refresh(){
+  stopEarAnim();
+  $("#ear").classList.toggle("armed",!!L4.sel);
+  $("#ear").innerHTML=drawEar({placed:L4.placed,pitch:pitchHz()});
+  setPitchDot(pitchHz()); paintWave(L4.amp);
+  $("#chain4").innerHTML=EAR_HEAR.map(id=>{const ok=L4.placed.has(id); return `<li class="${ok?"ok":"miss"}">${ok?"✓":"✗"} ${EAR_PART[id].chain}${ok?"":" (missing)"}</li>`;}).join("")+
+    `<li class="${L4.placed.has("canals")?"ok":"miss"}">${L4.placed.has("canals")?"✓":"○"} Semicircular canals: balance, not hearing</li>`;
+  $("#verdict4").textContent=L4.phase==="assemble"?earVerdict(L4.placed):"Frank hears the sound clearly!";
+  paintMeterN((L4.phase==="assemble"?L4.placed.size:EAR_PARTS.length)+L4.quizDone,EAR_PARTS.length+6,"Ear repair");
+  $("#phase").textContent=L4.phase==="assemble"?"Phase 1 of 2: Assemble the ear":(L4.phase==="quiz"?"Phase 2 of 2: Trace the sound":"Level complete");
+  l4Bench();
+}
+function earPartBtn(p){
+  const placed=L4.placed.has(p.id);
+  return `<button type="button" class="part${L4.sel===p.id?" sel":""}" data-part="${p.id}"${placed?" disabled":""} aria-pressed="${L4.sel===p.id}">${earIcon(p)}<span><span class="pn">${p.name}${placed?" ✓":""}</span><span class="pc">${p.clue}</span></span></button>`;
+}
+function pitchLabel(f){return f+" Hz, "+(f<500?"low":(f<1500?"middle":"high"));}
+function l4Bench(){
+  if(L4.phase!=="assemble") return;
+  const n=L4.placed.size, N=EAR_PARTS.length;
+  $("#bench").innerHTML=`<div class="bench-head"><h3 class="bt">Parts tray</h3><span class="count">${n} of ${N} placed</span></div>
+   <p class="help">Drag each part onto its place on Monitor 1, or select a part and then select its place. Test the signal any time with the sound lab below.</p>
+   <div class="tray" id="tray">${L4.trayOrder.map(id=>earPartBtn(EAR_PART[id])).join("")}</div>
+   <p id="notice" class="notice ${L4.noticeKind}" aria-live="polite">${esc(L4.notice)}</p>
+   <div class="benchbtns"><button type="button" class="btn ghost" id="hintBtn"${n===N?" hidden":""}>Hint</button>${n===N?'<button type="button" class="btn" id="toQ4">Continue to the sound checkpoint</button>':""}</div>
+   <div class="submitbox"><h4 class="q">Sound lab</h4>
+    <p class="help">Send a sound through whatever you have built so far. A music note travels along Monitor 1 and each part you built moves as the sound passes, until the path is broken. Move the pitch slider and watch the white dot on the cochlea.</p>
+    <div class="srow" style="grid-template-columns:minmax(80px,1fr) 3fr minmax(110px,1.4fr)"><label for="pitch">Pitch</label><input id="pitch" type="range" min="0" max="100" value="${L4.pitchV}"><output id="pitchOut" for="pitch">${pitchLabel(pitchHz())}</output></div>
+    <div class="presets" role="group" aria-label="Loudness">${[["Soft",.35],["Medium",.6],["Loud",.9]].map(l=>`<button type="button" class="chipb" data-vol="${l[1]}" aria-pressed="${L4.vol===l[1]}">${l[0]}</button>`).join("")}</div>
+    <div class="benchbtns"><button type="button" class="btn" id="sendBtn">Send a sound through the ear</button></div>
+    <p class="readout" id="heard4" aria-live="polite"></p></div>`;
+  $("#hintBtn").addEventListener("click",hintEar); const q=$("#toQ4"); if(q) q.addEventListener("click",l4Quiz);
+  $("#pitch").addEventListener("input",e=>{L4.pitchV=+e.target.value; $("#pitchOut").textContent=pitchLabel(pitchHz()); setPitchDot(pitchHz());});
+  $$("[data-vol]").forEach(b=>b.addEventListener("click",()=>{L4.vol=+b.dataset.vol; $$("[data-vol]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));}));
+  $("#sendBtn").addEventListener("click",()=>l4Play());
+}
+function selectEar(id){
+  if(!L4||L4.phase!=="assemble"||L4.placed.has(id)) return;
+  L4.sel=L4.sel===id?null:id;
+  $$(".part").forEach(b=>{const on=b.dataset.part===L4.sel; b.classList.toggle("sel",on); b.setAttribute("aria-pressed",String(on));});
+  $("#ear").classList.toggle("armed",!!L4.sel);
+  sayIn(L4,L4.sel?"Selected: "+EAR_PART[id].name+". Now choose its place on Monitor 1.":"","");
+}
+function placeEar(partId,slotId){
+  if(!partId){ sayIn(L4,"Select a part from the tray first.",""); return; }
+  if(partId===slotId){
+    L4.placed.add(partId); L4.sel=null; Snd.place(); sayIn(L4,EAR_PART[partId].fact,"good");
+    if(L4.placed.size===EAR_PARTS.length){ Snd.zap(); L4.notice+=" Every part is in place. Try sending a sound through the ear!"; }
+    l4Refresh();
+  } else {
+    L4.wrong++; Snd.wrong();
+    const b=$(`.part[data-part="${partId}"]`); if(b){b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake");}
+    sayIn(L4,"Not quite. The "+EAR_PART[partId].name.toLowerCase()+" doesn’t go there. Think about what it does: "+EAR_PART[partId].clue,"bad");
+  }
+}
+function hintEar(){
+  if(!L4.sel){ sayIn(L4,"Select a part first, then ask for a hint.",""); return; }
+  L4.hints++; const s=$(`.slot[data-slot="${L4.sel}"]`);
+  if(s){ s.classList.add("hint"); setTimeout(()=>s.classList.remove("hint"),3200); }
+  sayIn(L4,"Hint used. Look for the glowing place on Monitor 1.","");
+}
+function dropEar(id,cx,cy){
+  const svg=$("#ear"); if(!svg||!svg.createSVGPoint) return;
+  const r=svg.getBoundingClientRect(); if(cx<r.left-10||cx>r.right+10||cy<r.top-10||cy>r.bottom+10) return;
+  const m=svg.getScreenCTM(); if(!m) return;
+  const pt=svg.createSVGPoint(); pt.x=cx; pt.y=cy; const p=pt.matrixTransform(m.inverse());
+  let best=null, bd=1e9;
+  EAR_PARTS.forEach(part=>{ if(L4.placed.has(part.id)) return; part.anchors().forEach(a=>{const d=Math.hypot(p.x-a[0],p.y-a[1]); if(d<bd){bd=d;best=part.id;}}); });
+  if(best&&bd<=72) placeEar(id,best); else sayIn(L4,"Drop the part right onto one of the dashed places on Monitor 1.","");
+}
+/* send a sound through the ear: animate the pulse, then play the sound */
+function l4PlayStatic(){
+  clearL3Timer(); Hearing.stop();
+  const pl=L4.placed, tr=traceResult(pl), eff=earEffect(pl), f=pitchHz(), g=$("#trace");
+  if(g) g.innerHTML="";
+  const steps=tr.reached.map(id=>({id:id,ok:true})).concat(tr.stop?[{id:tr.stop,ok:false}]:[]);
+  if(!steps.length){ $("#heard4").textContent="Nothing is built yet, so there is no path for the sound."; return; }
+  let i=0; $("#sendBtn").disabled=true;
+  const stepText=id=>STAGES.find(s=>s[0]===id)[1];
+  const tick=()=>{
+    if(i>=steps.length){ clearL3Timer(); finish(); return; }
+    const s=steps[i++], a=EAR_PART[s.id].anchors()[0], tg=$("#trace");
+    if(s.ok){ if(tg) tg.innerHTML+=`<circle cx="${a[0].toFixed(0)}" cy="${a[1].toFixed(0)}" r="24" fill="rgba(255,212,121,.3)" stroke="#FFD479" stroke-width="3"/>`; $("#heard4").textContent=stepText(s.id); }
+    else { if(tg) tg.innerHTML+=`<g stroke="#FF7A6B" stroke-width="6" stroke-linecap="round"><path d="M${a[0]-14} ${a[1]-14} L${a[0]+14} ${a[1]+14} M${a[0]+14} ${a[1]-14} L${a[0]-14} ${a[1]+14}"/></g>`; $("#heard4").textContent="The path is broken: the "+EAR_PART[s.id].name.toLowerCase()+" is missing."; }
+  };
+  const finish=()=>{
+    L4.amp=eff.gain>0?Math.min(1,eff.gain):0; paintWave(L4.amp);
+    $("#verdict4").textContent=earVerdict(pl); $("#sendBtn").disabled=false;
+    const dur=Hearing.tone(f,eff,L4.vol);
+    const caption=eff.gain<=0?"Frank hears nothing.":(eff.lp<1000?"Frank hears: a faint, muffled sound.":(eff.gain<1?"Frank hears: a quieter sound.":"Frank hears: a clear tone."));
+    $("#heard4").textContent=caption+(Snd.muted?" (Sound is off. Turn it on with the Sound button to hear it.)":"");
+  };
+  tick(); traceTimer=setInterval(tick,170);
+}
+/* ---- animated sound journey (Level 4) ----
+   A music note travels along the path. Each part you built vibrates once the note reaches it. */
+let animRaf=null, EARRUN=null, earToneTimer=null;
+function stopEarAnim(){
+  if(animRaf){cancelAnimationFrame(animRaf); animRaf=null;}
+  if(earToneTimer){clearTimeout(earToneTimer); earToneTimer=null;}
+  if(EARRUN){EARRUN=null; earReset();}
+}
+function earReset(){
+  const ear=$("#ear"); if(!ear) return;
+  const dm=ear.querySelector('.pl[data-part="eardrum"] path'); if(dm) dm.setAttribute("d",DRUM_D);
+  ["hammer","anvil","stirrup","oval"].forEach(id=>{const g=ear.querySelector('.pl[data-part="'+id+'"]'); if(g) g.removeAttribute("transform");});
+  ear.querySelectorAll("[data-hcg]").forEach(g=>g.removeAttribute("transform"));
+  const a=$("#anim"); if(a) a.innerHTML="";
+}
+const NERVE_IN=bez(EAR_NERVE_C,.8), NERVE_END=[826,350];
+function earPlan(pl,f){
+  const tp=pitchT(f), legs=[], arrive={}; let t=0, pos=[-30,250], stopId=null;
+  const go=(to,dur,spiral)=>{legs.push({t0:t,t1:t+dur,from:pos,to:to,spiral:!!spiral}); t+=dur; pos=spiral?spiralPt(tp,0):to;};
+  const stages=[["pinna",[62,250],.4],["canal",[184,250],.45],["eardrum",[252,250],.35],["hammer",[290,230],.3],["anvil",[350,240],.3],["stirrup",[404,254],.3],["oval",[446,250],.3],["cochlea",null,1.1],["hair",[746,92],.5]];
+  for(const s of stages){
+    const id=s[0];
+    if(pl.has(id)){ go(s[1],s[2],id==="cochlea"); arrive[id]=t; }
+    else if(id==="pinna"){ go(s[1],s[2]); }
+    else { stopId=id; go(EAR_PART[id].anchors()[0],.35); arrive.stop=t; break; }
+  }
+  let vend;
+  if(!stopId){
+    legs.push({t0:t,t1:t+1.0,from:pos,to:pos,spiral:false}); t+=1.0; vend=t;
+    if(pl.has("nerve")){ go([746,150],.25); go(NERVE_IN,.35); arrive.nerve=t; go(NERVE_END,.45); }
+    else { stopId="nerve"; go([746,150],.25); go(EAR_PART.nerve.anchors()[1],.4); arrive.stop=t; vend=t+.2; }
+  } else vend=t+.9;
+  return {legs:legs,arrive:arrive,stopId:stopId,vend:vend,total:Math.max(t+.4,vend+.5),tp:tp,fv:3+5*(1-tp),last:pos,f:f};
+}
+function noteAt(R,t){
+  const L=R.legs; if(t<=0) return L[0].from;
+  for(const l of L){
+    if(t<l.t1){ const u=Math.max(0,(t-l.t0)/(l.t1-l.t0)), e=u*u*(3-2*u)*.5+u*.5;
+      return l.spiral?spiralPt(R.tp*e,0):[l.from[0]+(l.to[0]-l.from[0])*e,l.from[1]+(l.to[1]-l.from[1])*e]; }
+  }
+  return R.last;
+}
+function earFrame(ms){
+  const R=EARRUN, ear=$("#ear"); if(!R||!ear) return false;
+  const t=ms/1000, clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), sw=Math.sin;
+  if(t>=R.total){ finishEarAnim(); return false; }
+  const env=id=>{const a=R.arrive[id]; if(a===undefined) return 0; return clamp((t-a)/.3,0,1)*clamp((R.vend+.4-t)/.4,0,1);};
+  const w=2*Math.PI*R.fv;
+  /* the note and its trail */
+  const p=noteAt(R,t), nt=$("#note");
+  if(nt){ nt.setAttribute("transform","translate("+p[0].toFixed(1)+" "+p[1].toFixed(1)+")"); nt.setAttribute("opacity",(clamp(t/.15,0,1)*clamp((R.total-t)/.3,0,1)).toFixed(2)); }
+  for(let k=1;k<=5;k++){ const c=$("#trail"+k); if(c){ const q=noteAt(R,Math.max(0,t-k*.05)); c.setAttribute("cx",q[0].toFixed(1)); c.setAttribute("cy",q[1].toFixed(1)); } }
+  /* eardrum, hammer, anvil, stirrup and oval window all move at the same speed, each a little behind the last */
+  const dm=ear.querySelector('.pl[data-part="eardrum"] path'); if(dm) dm.setAttribute("d","M246 212 Q"+(272+6*env("eardrum")*sw(w*t)).toFixed(1)+" 250 246 288");
+  const set=(id,tr)=>{const g=ear.querySelector('.pl[data-part="'+id+'"]'); if(g) g.setAttribute("transform",tr);};
+  set("hammer","rotate("+(6*env("hammer")*sw(w*t-.6)).toFixed(2)+" 322 205)");
+  set("anvil","rotate("+(-5*env("anvil")*sw(w*t-1.2)).toFixed(2)+" 346 228)");
+  set("stirrup","translate("+(4.5*env("stirrup")*sw(w*t-1.8)).toFixed(2)+" 0)");
+  set("oval","translate("+(3*env("oval")*sw(w*t-2.2)).toFixed(2)+" 0)");
+  /* fluid wave in the cochlea, peaking at the white dot */
+  const cw=$("#cwave"); if(cw){ cw.setAttribute("opacity",(.9*env("oval")).toFixed(2)); cw.setAttribute("stroke-dashoffset",(-t*70).toFixed(1)); }
+  const pd=$("#pdot"); if(pd) pd.setAttribute("r",(7+3*env("cochlea")*Math.abs(sw(w*t))).toFixed(1));
+  /* hair cells sway like seaweed in a current; the cells for this pitch sway the most */
+  const idx=Math.round(R.tp*6), eh=env("hair");
+  ear.querySelectorAll("[data-hcg]").forEach(g=>{
+    const i=+g.dataset.hcg, amp=.3+.7*Math.exp(-Math.pow((i-idx)/1.1,2));
+    g.setAttribute("transform","rotate("+(16*eh*amp*sw(w*.55*t+i*.8)).toFixed(2)+" "+(696+i*16+3.5)+" 104)");
+  });
+  const cu=$("#curr"); if(cu){ cu.setAttribute("opacity",(.75*eh).toFixed(2)); cu.setAttribute("stroke-dashoffset",(-t*45).toFixed(1)); }
+  /* captions and the red X where the path breaks */
+  ["pinna","canal","eardrum","hammer","anvil","stirrup","oval","cochlea","hair","nerve"].forEach((id,i)=>{
+    if(i>R.capIdx&&R.arrive[id]!==undefined&&t>=R.arrive[id]){ R.capIdx=i; const h=$("#heard4"); if(h) h.textContent=STAGES.find(s=>s[0]===id)[1]; }
+  });
+  if(R.stopId&&R.arrive.stop!==undefined&&t>=R.arrive.stop&&!R.xDone){
+    R.xDone=true; const a=EAR_PART[R.stopId].anchors()[R.stopId==="nerve"?1:0], tg=$("#trace");
+    if(tg) tg.innerHTML+=`<g stroke="#FF7A6B" stroke-width="6" stroke-linecap="round"><path d="M${a[0]-14} ${a[1]-14} L${a[0]+14} ${a[1]+14} M${a[0]+14} ${a[1]-14} L${a[0]-14} ${a[1]+14}"/></g>`;
+    const h=$("#heard4"); if(h) h.textContent="The path is broken: the "+EAR_PART[R.stopId].name.toLowerCase()+" is missing.";
+  }
+  return true;
+}
+function finishEarAnim(){
+  const pl=L4.placed, eff=earEffect(pl);
+  EARRUN=null; if(animRaf){cancelAnimationFrame(animRaf); animRaf=null;}
+  earReset(); L4.amp=eff.gain>0?Math.min(1,eff.gain):0; paintWave(L4.amp);
+  $("#verdict4").textContent=earVerdict(pl); const b=$("#sendBtn"); if(b) b.disabled=false;
+  const caption=eff.gain<=0?"Frank hears nothing.":(eff.lp<1000?"Frank hears: a faint, muffled sound.":(eff.gain<1?"Frank hears: a quieter sound.":"Frank hears: a clear tone."));
+  $("#heard4").textContent=caption+(Snd.muted?" (Sound is off. Turn it on with the Sound button to hear it.)":"");
+}
+function startEarAnim(manual){
+  stopEarAnim(); clearL3Timer();
+  const pl=L4.placed, f=pitchHz(), R=earPlan(pl,f), a=$("#anim"); if(!a||!R.legs.length) return false;
+  R.t0=performance.now(); R.capIdx=-1; R.xDone=false; EARRUN=R;
+  a.innerHTML=(pl.has("cochlea")?`<path id="cwave" d="${spiralPath(0,R.tp,0)}" fill="none" stroke="#BFE6FF" stroke-width="6" stroke-linecap="round" stroke-dasharray="3 11" opacity="0"/>`:"")+
+    (pl.has("hair")?`<g id="curr" opacity="0" stroke="#7FC8FF" stroke-width="2" stroke-linecap="round" stroke-dasharray="7 11" fill="none"><path d="M694 62 H798"/><path d="M694 70 H798"/><path d="M694 124 H798"/></g>`:"")+
+    [5,4,3,2,1].map(k=>`<circle id="trail${k}" r="${(5-k*.6).toFixed(1)}" fill="#FFD479" opacity="${(.55-k*.09).toFixed(2)}" cx="-40" cy="250"/>`).join("")+
+    `<g id="note" opacity="0" transform="translate(-30 250)"><circle r="17" fill="rgba(255,212,121,.28)"/><ellipse cx="-3" cy="6" rx="7" ry="5" transform="rotate(-20 -3 6)" fill="#FFD479" stroke="#7A4E10" stroke-width="1.5"/><path d="M3 4 V-16 Q12 -12 11 -3" stroke="#FFD479" stroke-width="3" fill="none" stroke-linecap="round"/></g>`;
+  const eff=earEffect(pl), tTone=R.arrive.eardrum!==undefined?R.arrive.eardrum:.3, dur=Math.max(.8,R.vend-tTone);
+  earToneTimer=setTimeout(()=>{earToneTimer=null; Hearing.tone(f,eff,L4.vol,dur);},tTone*1000);
+  const b=$("#sendBtn"); if(b) b.disabled=true;
+  if(!manual){ const loop=now=>{ if(!EARRUN) return; if(earFrame(now-EARRUN.t0)) animRaf=requestAnimationFrame(loop); }; animRaf=requestAnimationFrame(loop); }
+  return true;
+}
+function l4Play(manual){
+  clearL3Timer(); Hearing.stop();
+  if(reduceMotion()) return l4PlayStatic();
+  const g=$("#trace"); if(g) g.innerHTML="";
+  if(!startEarAnim(manual)) $("#heard4").textContent="Nothing is built yet, so there is no path for the sound.";
+}
+
+/* ---- checkpoint ---- */
+const L4_QUIZ=[
+ {q:"What is the correct path of sound through the ear?",right:"Ear canal, eardrum, hammer, anvil, stirrup, oval window, cochlea",wrong:["Ear canal, oval window, eardrum, stirrup, anvil, hammer, cochlea","Eardrum, ear canal, hammer, stirrup, anvil, cochlea, oval window","Pinna, cochlea, hammer, anvil, stirrup, eardrum, auditory nerve"],why:"Sound travels from the ear canal to the eardrum, through the three bones (hammer, anvil, stirrup), into the cochlea through the oval window."},
+ {q:"Which structures convert vibrations into neural signals (transduction)?",right:"Hair cells in the cochlea",wrong:["The eardrum","The three tiny bones","The pinna"],why:"Hair cells bend as fluid waves pass, and that bending makes them fire signals to the auditory nerve."},
+ {q:"What is the main job of the hammer, anvil, and stirrup?",right:"To pass the eardrum’s vibrations on to the fluid-filled cochlea",wrong:["To detect different pitches","To send signals to the brain","To keep Frank balanced"],why:"The three bones link the eardrum to the oval window, carrying air-driven vibrations into the cochlea’s fluid."},
+ {q:"A high-pitched tone makes which part of the cochlea’s membrane move the most?",right:"The base, near the oval window",wrong:["The tip, at the center of the spiral","The whole membrane equally","The auditory nerve"],why:"By place theory, high pitches peak near the base of the cochlea and low pitches near the tip. That is why the white dot moved along the spiral."},
+ {q:"Frank hears perfectly but keeps losing his balance. Which structure is most likely damaged?",right:"The semicircular canals",wrong:["The cochlea","The eardrum","The auditory nerve"],why:"The semicircular canals sense head movement for balance (the vestibular sense). They sit beside the cochlea but are not part of hearing."},
+ {q:"Where do sound vibrations move from the middle ear into the fluid of the inner ear?",right:"At the oval window, where the stirrup pushes",wrong:["At the eardrum","In the ear canal","At the pinna"],why:"The stirrup presses on the oval window, which sends pressure waves into the fluid of the cochlea."}
+];
+function l4Quiz(){
+  clearL3Timer(); L4.phase="quiz"; $("#ear").classList.remove("armed"); l4Refresh();
+  makeQuiz({title:"Sound checkpoint",items:L4_QUIZ,onWrong:()=>{L4.wrong++;},onProgress:n=>{L4.quizDone=n; paintMeterN(EAR_PARTS.length+n,EAR_PARTS.length+6,"Ear repair");},onDone:s=>{L4.firstTry=s.firstTry; finishL4();}}).start();
+}
+function finishL4(){
+  L4.phase="done"; L4.amp=1; l4Refresh(); paintWave(1);
+  const st={wrong:L4.wrong,hints:L4.hints,firstTry:L4.firstTry,total:L4_QUIZ.length,secs:Math.round((Date.now()-L4.start)/1000)};
+  recordLevel(4,st);
+  celebrate();
+  renderLevelDone(4,"Level 4: The ear",st,{title:"Frank can hear!",body:(save.name?save.name+", you":"You")+" built Frank’s ear and traced a sound all the way to the brain."},startLevel4);
+}
+
+/* ==================================================================
+   LEVEL 5: HEARING LOSS (conduction and sensorineural)
+   ================================================================== */
+const HAIRW=[1,.9,.75,.55,.35,.2,.1];
+const HL_CASES=[
+ {id:"wax",type:"conduction",cause:"wax",best:"clear",severity:"mild",air:[40,40,40,40,40,40],bone:[5,5,5,5,5,5],
+  story:"Frank’s hearing in his left ear has been muffled ever since swamp mud dried inside it. The ear canal looks packed.",
+  dxWhy:"The air line is much worse than the bone line. Sound is blocked on its way in, but vibrations through the skull reach a healthy cochlea normally. That air-bone gap is the sign of conduction hearing loss.",
+  txWhy:"The blockage is the problem, so removing it restores natural hearing. A hearing aid would make up for it by being louder, but the blockage would still be there.",
+  model:{wax:1}},
+ {id:"ossicles",type:"conduction",cause:"ossicles",best:"surgery",severity:"moderate",air:[45,45,40,40,40,35],bone:[5,5,5,5,5,5],
+  story:"Frank’s hearing in his left ear has slowly faded. His eardrum looks normal, but the tiny bones behind it have fused stiff.",
+  dxWhy:"Air conduction is poor, but bone conduction is normal. The cochlea works, and the stiff ossicles are failing to pass the vibrations along, which is conduction hearing loss.",
+  txWhy:"Middle-ear surgery repairs or replaces the stiff bones, which fixes the cause. A hearing aid helps by making things louder, but it doesn’t fix the bones.",
+  model:{stiff:1}},
+ {id:"drum",type:"conduction",cause:"eardrum",best:"surgery",severity:"mild",air:[40,35,30,25,20,20],bone:[5,5,5,5,5,5],
+  story:"After a lightning blast, Frank’s left eardrum has a small hole in it, and sounds are muffled.",
+  dxWhy:"Bone conduction is normal while air conduction is reduced, so the inner ear is fine. A damaged eardrum can’t pick up vibrations well, which is conduction loss.",
+  txWhy:"A small repair to the eardrum (or the middle ear) fixes the cause and restores hearing. The inner ear was never the problem.",
+  model:{hole:true}},
+ {id:"noise",type:"sensorineural",cause:"noise",best:"aid",severity:"moderate",air:[10,10,15,30,50,60],bone:[10,10,15,30,50,60],
+  story:"After years beside the lightning rod without ear protection, Frank can’t hear high-pitched sounds. Low rumbles are fine.",
+  dxWhy:"The air and bone lines match, so sound reaches the cochlea but the hair cells can’t respond. Noise damage usually harms the hair cells for high pitches first, which is sensorineural loss.",
+  txWhy:"Some hair cells still work, so a hearing aid’s amplification helps a lot. A cochlear implant is major surgery meant for much more severe loss.",
+  model:{hairW:HAIRW.map(w=>w*.7),hairFrac:.45}},
+ {id:"age",type:"sensorineural",cause:"age",best:"aid",severity:"moderate",air:[15,20,25,40,55,70],bone:[15,20,25,40,55,70],
+  story:"Frank has noticed that birdsong and consonants are harder to hear as the years pass, especially in a noisy room.",
+  dxWhy:"The air and bone lines sit together and slope downward at high pitches. That points to hair-cell loss in the cochlea (sensorineural), which is common with age.",
+  txWhy:"Hearing aids amplify the pitches Frank still has hair cells for. Because the loss is moderate, an aid is the usual first choice.",
+  model:{hairW:HAIRW.map(w=>w*.85),hairFrac:.55}},
+ {id:"illness",type:"sensorineural",cause:"illness",best:"implant",severity:"profound",air:[85,90,95,100,105,110],bone:[85,90,95,100,105,110],
+  story:"A fever destroyed nearly all of the hair cells in Frank’s left cochlea. He hears almost nothing, even very loud sounds.",
+  dxWhy:"Air and bone conduction are both severely reduced, and the lines match. The hair cells are the problem, so this is sensorineural loss.",
+  txWhy:"With almost no working hair cells, a hearing aid has little to amplify. A cochlear implant bypasses the hair cells and stimulates the auditory nerve directly.",
+  model:{hairW:HAIRW.map(()=>1),hairFrac:1}}
+];
+const HL_BY=Object.fromEntries(HL_CASES.map(c=>[c.id,c]));
+const TXS=[["clear","Clear the ear canal"],["surgery","Middle-ear surgery (repair the eardrum or the bones)"],["aid","Hearing aid (makes sound louder)"],["implant","Cochlear implant (stimulates the auditory nerve directly)"]];
+function treat(c,tx){
+  const norm=c.air.map(()=>BASE); let air=c.air.slice(), note="", quality="natural", fixed=false;
+  const conduction=c.type==="conduction";
+  if(tx==="clear"){
+    if(c.cause==="wax"){air=norm; fixed=true; note="The blockage is gone and sound reaches the eardrum again. Hearing is back to normal.";}
+    else note="There is nothing blocking this ear canal, so nothing changed.";
+  } else if(tx==="surgery"){
+    if(c.cause==="ossicles"||c.cause==="eardrum"){air=norm; fixed=true; note="The middle ear is repaired and vibrations pass through again. Hearing is back to normal.";}
+    else note="The middle ear is not the problem here, so surgery changed nothing and only added risk.";
+  } else if(tx==="aid"){
+    air=c.air.map(a=>Math.max(BASE,Math.round(a-(a<=60?a*.85:(a<=85?a*.35:a*.05)))));
+    note=conduction?"Louder sound makes up for the blocked path, so hearing improves a lot. But the underlying problem is still there, and a more direct fix exists."
+      :(c.severity==="profound"?"Almost no benefit. Too few hair cells remain to respond, even to loud sound."
+      :"Amplification helps the hair cells that still work, so sounds are louder and clearer. Hearing is not like new, but it is much better.");
+  } else if(tx==="implant"){
+    quality="robotic";
+    if(c.severity==="profound"){air=c.air.map(()=>30); fixed=true; note="A big improvement. Electrodes bypass the dead hair cells and stimulate the auditory nerve directly. The sound is buzzy and robotic, but speech becomes understandable with practice.";}
+    else {air=c.air.map(()=>35); note="It works, but it is major surgery that replaces hearing that could be helped in a simpler way, and natural sound quality is lost. It is not the best fit.";}
+  }
+  return {air:air,note:note,quality:quality,fixed:fixed};
+}
+function caseModel(c,tx,res){
+  const m=Object.assign({},c.model);
+  if(tx&&res){
+    if(tx==="clear"&&res.fixed) m.wax=0;
+    if(tx==="surgery"&&res.fixed){m.stiff=0; m.hole=false;}
+    if(tx==="aid") m.aid=true;
+    if(tx==="implant") m.implant=true;
+  }
+  return m;
+}
+/* the exploration lab uses two sliders */
+function labProfile(L){
+  const air=[],bone=[],eff=[];
+  FQ.forEach((f,i)=>{
+    const sn=L.sn*W6[i]; air.push(Math.round(BASE+L.cond+sn)); bone.push(Math.round(BASE+sn));
+    eff.push(Math.round(BASE+(L.boost?Math.max(0,L.cond-30):L.cond)+Math.max(0,sn-(L.boost?10:0))));
+  });
+  return {air:air,bone:bone,eff:eff};
+}
+function listen(loss,opts,capId){
+  const cap=$("#"+capId), text=heardCaption(loss,opts&&opts.robotic), dur=Hearing.play(loss,opts||{});
+  if(cap) cap.textContent=text+(dur?"":(Snd.muted?" (Sound is off. Turn it on with the Sound button to hear it.)":" (This device could not play sound, but the description above still applies.)"));
+}
+let L5=null;
+function startLevel5(){
+  L5={phase:"lab",cond:0,sn:0,boost:false,tasks:{a:false,b:false,c:false,d:false},wrong:0,hints:0,firstTry:0,start:Date.now(),T:null,notice:"",noticeKind:""};
+  $("#homeBtn").hidden=false; stopStatic(); clearL3Timer(); Hearing.stop();
+  levelShell("Level 5: Hearing loss","Monitor 1: Frank’s left ear","Monitor 2: Hearing test (audiogram)",10,EAR_TABLE_SVG);
+  $("#m1").innerHTML=`<svg id="ear" viewBox="0 0 840 420" role="img" aria-label="Frank’s ear, with damage shown in color"></svg>`;
+  l5Lab(); window.scrollTo({top:0,behavior:"auto"});
+}
+function l5Progress(){
+  const t=Object.values(L5.tasks).filter(Boolean).length, d=L5.T?L5.T.done.size:0;
+  paintMeterN(t+d,10,"Hearing repair");
+}
+function l5Lab(){
+  L5.phase="lab"; $("#phase").textContent="Part 1 of 2: Hearing lab";
+  $("#bench").innerHTML=`<h3 class="bt">Hearing lab</h3>
+   <p class="help">Damage Frank’s hearing in two different ways and compare. A <b>middle-ear problem</b> blocks sound on the way in (conduction). <b>Hair-cell damage</b> hurts the receptors for high pitches first (sensorineural). On the hearing test, the red air line is sound through the ear canal, and the blue bone line is vibration straight through the skull to the cochlea.</p>
+   <div class="srow" style="grid-template-columns:minmax(150px,1.4fr) 2fr 4.5em"><label for="cond">Middle-ear problem</label><input id="cond" type="range" min="0" max="60" step="5" value="${L5.cond}"><output id="condOut" for="cond"></output></div>
+   <div class="srow" style="grid-template-columns:minmax(150px,1.4fr) 2fr 4.5em"><label for="sn">Hair-cell damage</label><input id="sn" type="range" min="0" max="80" step="5" value="${L5.sn}"><output id="snOut" for="sn"></output></div>
+   <div class="presets"><button type="button" class="chipb" id="boost" aria-pressed="${L5.boost}">Turn up the volume</button></div>
+   <div class="benchbtns"><button type="button" class="btn" id="hearMel">Hear Frank: melody</button><button type="button" class="btn ghost" id="hearAmb">Hear Frank: thunder and creaks</button><button type="button" class="btn ghost" id="hearOk">Hear a healthy ear</button></div>
+   <p class="readout" id="hcap" aria-live="polite" style="min-height:3em"></p>
+   <p class="help">Try to complete all four:</p><ul class="checks" id="tasks"></ul>
+   <div class="benchbtns"><button class="btn" id="toClinic" type="button" disabled>Continue to the hearing clinic</button></div>`;
+  $("#cond").addEventListener("input",e=>{L5.cond=+e.target.value; l5LabPaint();});
+  $("#sn").addEventListener("input",e=>{L5.sn=+e.target.value; l5LabPaint();});
+  $("#boost").addEventListener("click",()=>{L5.boost=!L5.boost; $("#boost").setAttribute("aria-pressed",String(L5.boost)); l5LabPaint();});
+  $("#hearMel").addEventListener("click",()=>listen(labProfile(L5).eff,{source:"melody"},"hcap"));
+  $("#hearAmb").addEventListener("click",()=>listen(labProfile(L5).eff,{source:"ambience"},"hcap"));
+  $("#hearOk").addEventListener("click",()=>listen(FQ.map(()=>BASE),{source:"melody"},"hcap"));
+  $("#toClinic").addEventListener("click",l5Clinic);
+  l5LabPaint();
+}
+function l5LabPaint(){
+  const p=labProfile(L5), t=L5.tasks, before=Object.values(t).filter(Boolean).length;
+  $("#condOut").textContent=L5.cond+" dB"; $("#snOut").textContent=L5.sn+" dB";
+  $("#m2").innerHTML=audiogramSVG(p.air,p.bone,L5.boost?p.eff:null);
+  const model={stiff:L5.cond/60,hairW:HAIRW.map(w=>Math.min(1,L5.sn/80*w)),hairFrac:Math.min(.9,L5.sn/80*.8)};
+  $("#ear").innerHTML=drawEar({all:true,model:model,pitch:1000,nodot:true});
+  const maxRes=Math.max.apply(null,p.eff.map(v=>v-BASE));
+  if(L5.cond>=25&&L5.sn<10) t.a=true;
+  if(L5.sn>=35&&L5.cond<10) t.b=true;
+  if(L5.cond>=25&&L5.cond<=45&&L5.sn<10&&L5.boost&&maxRes<=15) t.c=true;
+  if(L5.sn>=40&&L5.cond<10&&L5.boost&&p.eff[5]-BASE>=25) t.d=true;
+  const txt={a:"Conduction loss: the air line drops, but the bone line stays normal",b:"Sensorineural loss: both lines drop, mostly at high pitches",c:"With a conduction loss, turn up the volume: hearing mostly returns",d:"With hair-cell damage, turn up the volume: high pitches stay faint"};
+  $("#tasks").innerHTML=Object.keys(txt).map(k=>`<li class="${t[k]?"ok":""}">${t[k]?"✓":"○"} ${txt[k]}</li>`).join("");
+  const after=Object.values(t).filter(Boolean).length; if(after>before) Snd.place();
+  $("#toClinic").disabled=after<4; l5Progress();
+}
+/* ---- the clinic ---- */
+function l5Clinic(){
+  Hearing.stop(); L5.phase="clinic"; $("#phase").textContent="Part 2 of 2: Hearing clinic";
+  L5.T={queue:shuffle(HL_CASES.map(c=>c.id)),done:new Set(),missed:{},first:0,cur:null,step:"dx",curMissed:false,curQueued:false,locked:false,tx:null,res:null,returning:false,opts:[]};
+  l5Next();
+}
+function l5Next(){
+  const T=L5.T; if(!T.queue.length){ finishL5(); return; }
+  T.cur=HL_BY[T.queue.shift()]; T.step="dx"; T.curMissed=false; T.curQueued=false; T.locked=false; T.retry=false; T.tx=null; T.res=null; T.returning=!!T.missed[T.cur.id];
+  Hearing.stop(); l5Render(); window.scrollTo({top:0,behavior:"auto"});
+}
+function l5Miss(){
+  const T=L5.T; if(T.curMissed) return;
+  T.curMissed=true; T.missed[T.cur.id]=(T.missed[T.cur.id]||0)+1; L5.wrong++;
+  if(!T.curQueued){T.curQueued=true; T.queue.splice(Math.min(2,T.queue.length),0,T.cur.id);}
+}
+function l5Paint(){
+  const T=L5.T, c=T.cur;
+  $("#m2").innerHTML=audiogramSVG(c.air,c.bone,T.res?T.res.air:null);
+  $("#ear").innerHTML=drawEar({all:true,model:caseModel(c,T.tx,T.res),pitch:1000,nodot:true});
+  l5Progress();
+}
+function l5Render(){
+  const T=L5.T, c=T.cur;
+  let h=`<h3 class="bt">Hearing clinic</h3>${T.returning?'<span class="returning">Returning patient: you missed this case earlier</span>':""}
+   <p class="stepline">${T.step==="dx"?"Step 1 of 2: Diagnose":"Step 2 of 2: Choose a treatment"}</p><p class="story">${esc(c.story)}</p>`;
+  if(T.step==="dx"){
+    h+=`<p class="help">Study the hearing test on Monitor 2, then listen to how Frank hears.</p>
+     <div class="benchbtns"><button type="button" class="btn ghost" id="hearNow">Hear Frank’s hearing</button></div><p class="readout" id="hcap" aria-live="polite" style="min-height:3em"></p>
+     <h4 class="q">What type of hearing loss is this?</h4><div class="opts" id="opts"></div><div class="fb" id="fb" aria-live="polite"></div>`;
+    $("#bench").innerHTML=h; l5Paint();
+    $("#hearNow").addEventListener("click",()=>listen(c.air,{source:"melody"},"hcap"));
+    T.opts=shuffle(["Conduction hearing loss","Sensorineural hearing loss"]);
+    T.opts.forEach((t,i)=>{const b=document.createElement("button"); b.type="button"; b.className="opt"; b.innerHTML=`<span class="k">${i+1}</span><span>${t}</span>`; b.addEventListener("click",()=>l5Dx(i)); $("#opts").appendChild(b);});
+  } else {
+    h+=`<p class="confirmed">Diagnosis confirmed: ${c.type==="conduction"?"Conduction hearing loss":"Sensorineural hearing loss"}</p>
+     <h4 class="q">Which treatment fits best?</h4><div class="opts" id="txopts"></div>
+     <div class="benchbtns" style="margin-top:12px"><button type="button" class="btn ghost" id="hearBefore">Hear before treatment</button><button type="button" class="btn ghost" id="hearAfter" disabled>Hear after treatment</button></div>
+     <p class="readout" id="hcap" aria-live="polite" style="min-height:3em"></p><div class="fb" id="fb" aria-live="polite"></div>`;
+    $("#bench").innerHTML=h; l5Paint();
+    TXS.forEach((t,i)=>{const b=document.createElement("button"); b.type="button"; b.className="opt"; b.dataset.tx=t[0]; b.innerHTML=`<span class="k">${i+1}</span><span>${t[1]}</span>`; b.addEventListener("click",()=>l5Tx(t[0])); $("#txopts").appendChild(b);});
+    $("#hearBefore").addEventListener("click",()=>listen(c.air,{source:"melody"},"hcap"));
+    $("#hearAfter").addEventListener("click",()=>{ if(T.res) listen(T.res.air,{source:"melody",robotic:T.res.quality==="robotic"},"hcap"); });
+  }
+}
+function l5Dx(i){
+  const T=L5.T; if(T.locked) return; T.locked=true;
+  const c=T.cur, label=c.type==="conduction"?"Conduction hearing loss":"Sensorineural hearing loss", ok=T.opts[i]===label;
+  $$("#opts .opt").forEach((b,j)=>{b.disabled=true; if(T.opts[j]===label){b.classList.add("right");b.firstChild.textContent="✓";} else if(j===i){b.classList.add("wrong");b.firstChild.textContent="✗";} else b.classList.add("dim");});
+  if(ok){ Snd.place(); if(T.retry&&T.curMissed){ T.queue=T.queue.filter(x=>x!==c.id); T.curMissed=false; T.curQueued=false; } T.retry=false; }
+  else {Snd.wrong(); l5Miss();}
+  const fb=$("#fb"); fb.innerHTML=`<p class="verdict-t">${ok?"Diagnosis confirmed.":"Misdiagnosis."}</p><p>${esc(c.dxWhy)}</p>${ok?"":"<p>Try this question again right now, or move on and this case will come back later.</p>"}`;
+  const nb=document.createElement("button"); nb.type="button"; nb.className="btn"; nb.textContent="Continue to treatment";
+  nb.addEventListener("click",()=>{T.step="tx"; T.locked=false; l5Render();});
+  if(!ok){
+    const rb=document.createElement("button"); rb.type="button"; rb.className="btn"; rb.textContent="Try this question again now";
+    rb.addEventListener("click",()=>{T.retry=true; T.locked=false; l5Render();});
+    nb.className="btn ghost"; nb.textContent="Move on to treatment"; fb.appendChild(rb); fb.appendChild(nb); rb.focus();
+  } else { fb.appendChild(nb); nb.focus(); }
+}
+function l5Tx(tx){
+  const T=L5.T, c=T.cur; if(T.locked) return;
+  const res=treat(c,tx); T.tx=tx; T.res=res; l5Paint();
+  $("#hearAfter").disabled=false;
+  const fb=$("#fb"), best=tx===c.best, robotic=res.quality==="robotic";
+  $("#hcap").textContent=heardCaption(res.air,robotic)+" (Press Hear after treatment to listen.)";
+  if(best){
+    T.locked=true; Snd.zap();
+    if(!T.curMissed){T.done.add(c.id); if(!T.missed[c.id]) T.first++;}
+    $$("#txopts .opt").forEach(b=>{b.disabled=true; if(b.dataset.tx===tx){b.classList.add("right"); b.firstChild.textContent="✓";} else b.classList.add("dim");});
+    fb.innerHTML=`<p class="verdict-t">Best fit.</p><p>${esc(res.note)}</p><p>${esc(c.txWhy)}</p>${T.curMissed?"<p>Because you missed part of this case, it will return once more for a clean run.</p>":""}`;
+    const nb=document.createElement("button"); nb.type="button"; nb.className="btn"; nb.textContent=T.queue.length?"Next patient":"Finish level"; nb.addEventListener("click",l5Next); fb.appendChild(nb); l5Progress(); nb.focus();
+  } else {
+    Snd.wrong(); l5Miss();
+    fb.innerHTML=`<p class="verdict-t">Not the best fit.</p><p>${esc(res.note)}</p><p>Look at the audiogram again, then try a different treatment. This case will return later for a clean run.</p>`;
+  }
+}
+function finishL5(){
+  L5.phase="done"; $("#phase").textContent="Level complete"; L5.firstTry=L5.T.first;
+  const st={wrong:L5.wrong,hints:L5.hints,firstTry:L5.firstTry,total:HL_CASES.length,secs:Math.round((Date.now()-L5.start)/1000)};
+  recordLevel(5,st);
+  $("#m2").innerHTML=audiogramSVG(FQ.map(()=>BASE),null,null); $("#ear").innerHTML=drawEar({all:true,pitch:1000,nodot:true});
+  paintMeterN(10,10,"Hearing repair"); celebrate();
+  renderLevelDone(5,"Level 5: Hearing loss",st,{title:"Frank hears the storm!",body:(save.name?save.name+", you":"You")+" diagnosed every hearing problem and matched it with a treatment."},startLevel5);
+}
+
+showHome();
+</script>
+</body>
+</html>
